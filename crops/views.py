@@ -5,15 +5,17 @@ from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request, 'crops/home.html')
-
+@login_required
 def add_soil_data(request):
 
     if request.method == 'POST':
         form = SoilDataForm(request.POST)
 
         if form.is_valid():
-            form.save()
-            return redirect('home')
+            soil = form.save(commit=False)
+            soil.user = request.user
+            soil.save()
+            return redirect('dashboard')
 
     else:
         form = SoilDataForm()
@@ -25,7 +27,7 @@ def add_soil_data(request):
     )
 @login_required
 def dashboard(request):
-    soil_records = SoilData.objects.all().order_by('-created_at')
+    soil_records = SoilData.objects.filter(user=request.user).order_by('-created_at')
 
     return render(
         request,
