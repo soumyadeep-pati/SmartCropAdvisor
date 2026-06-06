@@ -1,23 +1,70 @@
 {% extends 'base.html' %}
 
-{% block title %}
-Home
-{% endblock %}
+{% block title %}Home - Smart Crop Advisor{% endblock %}
 
 {% block content %}
 
-<div class="text-center">
-    <h1 class="display-4">
-        Smart Crop Advisor
-    </h1>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1><i class="fas fa-seedling"></i> Smart Crop Advisor</h1>
+        <p>AI-powered crop recommendation system powered by soil analysis</p>
+        <a href="{% url 'add_soil' %}" class="btn btn-success btn-lg">
+            <i class="fas fa-play-circle"></i> Get Started Now
+        </a>
+    </div>
+</section>
 
-    <p class="lead">
-        AI-powered crop recommendation system.
-    </p>
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="text-center mb-5" style="color: #2c3e50; font-weight: 700;">
+            <i class="fas fa-sparkles"></i> Why Choose Us?
+        </h2>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <h5>Advanced Analysis</h5>
+                    <p>Get detailed soil analysis including nitrogen, phosphorus, potassium levels, and pH testing.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h5>AI Recommendations</h5>
+                    <p>Receive intelligent crop recommendations based on your soil conditions using machine learning.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h5>Track Progress</h5>
+                    <p>Monitor all your soil records and track changes over time with our comprehensive dashboard.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <a href="{% url 'add_soil' %}" class="btn btn-success btn-lg">
-        Get Started
-    </a>
-</div>
+<!-- CTA Section -->
+<section style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 60px 20px; margin: 60px 0; border-radius: 15px; color: white; text-align: center;">
+    <div class="container">
+        <h2 style="margin-bottom: 20px; font-weight: 700;">Ready to Optimize Your Crops?</h2>
+        <p style="font-size: 1.1rem; margin-bottom: 30px;">Start analyzing your soil today and get personalized recommendations for better yields.</p>
+        <a href="{% url 'add_soil' %}" class="btn btn-light btn-lg" style="font-weight: 600; color: #2ecc71;">
+            <i class="fas fa-plus"></i> Add Soil Data
+        </a>
+    </div>
+</section>
 
 {% endblock %}

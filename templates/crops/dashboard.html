@@ -1,43 +1,169 @@
 {% extends 'base.html' %}
 
-{% block title %}
-Dashboard
-{% endblock %}
+{% block title %}Dashboard - Smart Crop Advisor{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-4">Soil Records</h2>
+<div class="container mt-5">
+    <div style="margin-bottom: 40px;">
+        <h2 style="color: #2c3e50; font-weight: 700; margin-bottom: 10px;">
+            <i class="fas fa-chart-line"></i> Dashboard
+        </h2>
+        <p style="color: #666;">View and manage all your soil records</p>
+    </div>
 
-<table class="table table-bordered table-striped">
+    {% if soil_records %}
+        <!-- Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body" style="padding: 30px;">
+                        <h5 class="text-success" style="font-size: 2rem; font-weight: 700;">{{ soil_records|length }}</h5>
+                        <p style="color: #666;">Total Records</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body" style="padding: 30px;">
+                        <h5 style="font-size: 2rem; font-weight: 700; color: #3498db;">
+                            {% if soil_records %}
+                                {{ soil_records.0.nitrogen|floatformat:1 }}
+                            {% endif %}
+                        </h5>
+                        <p style="color: #666;">Avg Nitrogen</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body" style="padding: 30px;">
+                        <h5 style="font-size: 2rem; font-weight: 700; color: #e74c3c;">
+                            {% if soil_records %}
+                                {{ soil_records.0.ph|floatformat:1 }}
+                            {% endif %}
+                        </h5>
+                        <p style="color: #666;">Avg pH</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body" style="padding: 30px;">
+                        <h5 style="font-size: 2rem; font-weight: 700; color: #f39c12;">
+                            {% if soil_records %}
+                                {{ soil_records.0.potassium|floatformat:1 }}
+                            {% endif %}
+                        </h5>
+                        <p style="color: #666;">Avg Potassium</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <thead>
-        <tr>
-            <th>Location</th>
-            <th>N</th>
-            <th>P</th>
-            <th>K</th>
-            <th>pH</th>
-            <th>Date</th>
-        </tr>
-    </thead>
+        <!-- Table View -->
+        <div class="table-container">
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #2c3e50; font-weight: 700; margin-bottom: 15px;">
+                    <i class="fas fa-list"></i> Soil Records
+                </h4>
+            </div>
 
-    <tbody>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                            <th><i class="fas fa-atom"></i> Nitrogen (N)</th>
+                            <th><i class="fas fa-leaf"></i> Phosphorus (P)</th>
+                            <th><i class="fas fa-clover"></i> Potassium (K)</th>
+                            <th><i class="fas fa-flask"></i> pH Level</th>
+                            <th><i class="fas fa-calendar-alt"></i> Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for soil in soil_records %}
+                        <tr>
+                            <td>
+                                <strong>{{ soil.location }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: #3498db;">{{ soil.nitrogen }}</span>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: #9b59b6;">{{ soil.phosphorus }}</span>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: #f39c12;">{{ soil.potassium }}</span>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: #e74c3c;">{{ soil.ph }}</span>
+                            </td>
+                            <td>{{ soil.created_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        {% for soil in soil_records %}
+        <!-- Card View for Mobile -->
+        <div style="display: none;" class="d-md-none">
+            <div class="row">
+                {% for soil in soil_records %}
+                <div class="col-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title" style="color: #2ecc71; font-weight: 700;">
+                                <i class="fas fa-map-marker-alt"></i> {{ soil.location }}
+                            </h6>
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <small class="text-muted">Nitrogen</small>
+                                    <p style="font-weight: 600;">{{ soil.nitrogen }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Phosphorus</small>
+                                    <p style="font-weight: 600;">{{ soil.phosphorus }}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Potassium</small>
+                                    <p style="font-weight: 600;">{{ soil.potassium }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">pH</small>
+                                    <p style="font-weight: 600;">{{ soil.ph }}</p>
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ soil.created_at|date:"M d, Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-        <tr>
-            <td>{{ soil.location }}</td>
-            <td>{{ soil.nitrogen }}</td>
-            <td>{{ soil.phosphorus }}</td>
-            <td>{{ soil.potassium }}</td>
-            <td>{{ soil.ph }}</td>
-            <td>{{ soil.created_at }}</td>
-        </tr>
+    {% else %}
+        <div class="card border-0" style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 4rem; color: #ddd; margin-bottom: 20px;">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h4 style="color: #666; margin-bottom: 10px;">No soil records yet</h4>
+            <p style="color: #999; margin-bottom: 30px;">Start by adding your first soil data to get crop recommendations.</p>
+            <a href="{% url 'add_soil' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus"></i> Add Soil Data
+            </a>
+        </div>
+    {% endif %}
 
-        {% endfor %}
-
-    </tbody>
-
-</table>
+    <!-- Add New Record Button (Floating) -->
+    <div style="position: fixed; bottom: 30px; right: 30px;">
+        <a href="{% url 'add_soil' %}" class="btn btn-success btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);">
+            <i class="fas fa-plus"></i>
+        </a>
+    </div>
+</div>
 
 {% endblock %}

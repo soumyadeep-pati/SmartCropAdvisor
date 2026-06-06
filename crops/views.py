@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import SoilDataForm
 from .models import SoilData
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request, 'crops/home.html')
@@ -22,7 +23,7 @@ def add_soil_data(request):
         'crops/soil_form.html',
         {'form': form}
     )
-
+@login_required
 def dashboard(request):
     soil_records = SoilData.objects.all().order_by('-created_at')
 
