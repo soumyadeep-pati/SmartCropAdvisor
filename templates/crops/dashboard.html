@@ -79,6 +79,7 @@
                             <th><i class="fas fa-clover"></i> Potassium (K)</th>
                             <th><i class="fas fa-flask"></i> pH Level</th>
                             <th><i class="fas fa-calendar-alt"></i> Date</th>
+                            <th><i class="fas fa-cog"></i> Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -100,6 +101,14 @@
                                 <span class="badge" style="background-color: #e74c3c;">{{ soil.ph }}</span>
                             </td>
                             <td>{{ soil.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'edit_soil' soil.pk %}" class="btn btn-sm btn-primary" title="Edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{% url 'delete_soil' soil.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

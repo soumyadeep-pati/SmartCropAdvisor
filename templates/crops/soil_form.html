@@ -8,11 +8,20 @@
     <div style="max-width: 600px; margin: 40px auto;">
         <div class="form-container">
             <h2 style="color: #2c3e50; margin-bottom: 30px; font-weight: 700;">
-                <i class="fas fa-flask-vial"></i> Add Soil Data
+                <i class="fas fa-flask-vial"></i> 
+                {% if soil %}
+                    Edit Soil Data
+                {% else %}
+                    Add Soil Data
+                {% endif %}
             </h2>
             
             <p style="color: #666; margin-bottom: 30px;">
-                Enter your soil analysis details below. Our AI will analyze the data and provide crop recommendations.
+                {% if soil %}
+                    Update the soil analysis details for {{ soil.location }}.
+                {% else %}
+                    Enter your soil analysis details below. Our AI will analyze the data and provide crop recommendations.
+                {% endif %}
             </p>
 
             <form method="POST" novalidate>
@@ -53,7 +62,12 @@
 
                 <div class="d-grid gap-2 mt-4">
                     <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-check-circle"></i> Save & Analyze
+                        <i class="fas fa-check-circle"></i> 
+                        {% if soil %}
+                            Update Record
+                        {% else %}
+                            Save & Analyze
+                        {% endif %}
                     </button>
                     <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i> View Dashboard
