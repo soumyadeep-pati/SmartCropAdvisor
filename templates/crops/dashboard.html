@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">Soil Records</h2>
+
+<table class="table table-bordered table-striped">
+
+    <thead>
+        <tr>
+            <th>Location</th>
+            <th>N</th>
+            <th>P</th>
+            <th>K</th>
+            <th>pH</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for soil in soil_records %}
+
+        <tr>
+            <td>{{ soil.location }}</td>
+            <td>{{ soil.nitrogen }}</td>
+            <td>{{ soil.phosphorus }}</td>
+            <td>{{ soil.potassium }}</td>
+            <td>{{ soil.ph }}</td>
+            <td>{{ soil.created_at }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
