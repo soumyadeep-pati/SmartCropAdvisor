@@ -443,6 +443,7 @@
             outline-offset: 2px;
         }
     </style>
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
@@ -469,6 +470,14 @@
                     <a class="nav-link" href="{% url 'dashboard' %}">
                         <i class="fas fa-chart-line"></i> Dashboard
                     </a>
+                </li>
+                <li class="nav-item">
+                    <a
+                    class="nav-link"
+                    href="{% url 'prediction_history' %}">
+                    
+                    Predictions
+                </a>
                 </li>
 
                 <li class="nav-item">

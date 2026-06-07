@@ -100,7 +100,8 @@ def delete_soil_data(request, pk):
 @login_required
 def predict_crop_view(request, pk):
 
-    soil = SoilData.objects.get(
+    soil = get_object_or_404(
+        SoilData,
         pk=pk,
         user=request.user
     )
@@ -108,6 +109,7 @@ def predict_crop_view(request, pk):
     # Use actual weather data if available, fallback to defaults
     temperature = soil.weather_temperature if soil.weather_temperature else 25
     humidity = soil.weather_humidity if soil.weather_humidity else 70
+    rainfall = getattr(soil, 'rainfall', 150)
     
     crop, confidence = predict_crop(
         soil.nitrogen,
@@ -116,7 +118,7 @@ def predict_crop_view(request, pk):
         temperature,
         humidity,
         soil.ph,
-        soil.rainfall
+        rainfall
     )
 
     CropPrediction.objects.create(
@@ -133,5 +135,31 @@ def predict_crop_view(request, pk):
             "crop": crop,
             "confidence": confidence,
             "soil": soil
+        }
+    )
+
+@login_required
+def prediction_history(request):
+
+    predictions = CropPrediction.objects.filter(
+        user=request.user
+    ).select_related('soil_data').order_by('-created_at')
+
+    prediction_rows = []
+    for prediction in predictions:
+        confidence_percent = None
+        if prediction.confidence is not None:
+            confidence_percent = round(prediction.confidence * 100)
+
+        prediction_rows.append({
+            'prediction': prediction,
+            'confidence_percent': confidence_percent,
+        })
+
+    return render(
+        request,
+        'crops/prediction_history.html',
+        {
+            'prediction_rows': prediction_rows
         }
     )

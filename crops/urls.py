@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import add_soil_data, dashboard, delete_soil_data, edit_soil_data, home, predict_crop_view
+from .views import add_soil_data, dashboard, delete_soil_data, edit_soil_data, home, predict_crop_view, prediction_history
 
 urlpatterns = [
     path('', home, name='home'),
@@ -11,5 +11,10 @@ urlpatterns = [
     'predict/<int:pk>/',
     predict_crop_view,
     name='predict_crop'
-),
+    ),
+    path(
+    'prediction-history/',
+    prediction_history,
+    name='prediction_history'
+    ),
 ]

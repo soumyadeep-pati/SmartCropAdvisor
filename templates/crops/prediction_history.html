@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block title %}Prediction History - Smart Crop Advisor{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-page {
+        padding: 48px 0;
+    }
+
+    .history-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 28px;
+    }
+
+    .history-title {
+        color: var(--dark-color);
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .history-subtitle {
+        color: #6c757d;
+        margin: 0;
+    }
+
+    .history-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .history-stat {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 22px 24px;
+        margin-bottom: 24px;
+        border-left: 5px solid var(--primary-color);
+    }
+
+    .history-stat-value {
+        color: var(--secondary-color);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .history-stat-label {
+        color: #6c757d;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .history-crop {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        color: var(--dark-color);
+        text-transform: capitalize;
+    }
+
+    .history-crop-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(46, 204, 113, 0.12);
+        color: var(--secondary-color);
+        flex: 0 0 36px;
+    }
+
+    .confidence-wrap {
+        min-width: 180px;
+    }
+
+    .confidence-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+        color: #5f6f7a;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .confidence-track {
+        width: 100%;
+        height: 9px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e9f7ef;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(135deg, #16a085 0%, #2ecc71 100%);
+    }
+
+    .history-meta {
+        color: #6c757d;
+        font-size: 0.94rem;
+    }
+
+    .history-empty {
+        text-align: center;
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+        padding: 64px 24px;
+    }
+
+    .history-empty-icon {
+        color: #d7dee2;
+        font-size: 4rem;
+        margin-bottom: 18px;
+    }
+
+    .history-card-list {
+        display: none;
+    }
+
+    .history-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .history-page {
+            padding: 32px 0;
+        }
+
+        .history-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .history-title {
+            font-size: 1.6rem;
+        }
+
+        .history-actions,
+        .history-actions .btn {
+            width: 100%;
+        }
+
+        .history-table {
+            display: none;
+        }
+
+        .history-card-list {
+            display: block;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container history-page">
+    <div class="history-header">
+        <div>
+            <h2 class="history-title">
+                <i class="fas fa-clock-rotate-left"></i> Prediction History
+            </h2>
+            <p class="history-subtitle">Review your saved crop recommendations and confidence scores.</p>
+        </div>
+
+        <div class="history-actions">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="{% url 'add_soil' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add Soil Data
+            </a>
+        </div>
+    </div>
+
+    {% if prediction_rows %}
+        <div class="history-stat">
+            <div class="history-stat-value">{{ prediction_rows|length }}</div>
+            <p class="history-stat-label">Total predictions saved</p>
+        </div>
+
+        <div class="table-container history-table">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-seedling"></i> Crop</th>
+                            <th><i class="fas fa-location-dot"></i> Location</th>
+                            <th><i class="fas fa-gauge-high"></i> Confidence</th>
+                            <th><i class="fas fa-flask"></i> Soil pH</th>
+                            <th><i class="fas fa-calendar-alt"></i> Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in prediction_rows %}
+                            <tr>
+                                <td>
+                                    <div class="history-crop">
+                                        <span class="history-crop-icon">
+                                            <i class="fas fa-leaf"></i>
+                                        </span>
+                                        {{ row.prediction.crop_name }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ row.prediction.soil_data.location }}</strong>
+                                </td>
+                                <td>
+                                    <div class="confidence-wrap">
+                                        <div class="confidence-label">
+                                            <span>Model confidence</span>
+                                            <span>
+                                                {% if row.confidence_percent is not None %}
+                                                    {{ row.confidence_percent }}%
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <div class="confidence-track">
+                                            <div class="confidence-fill" style="width: {{ row.confidence_percent|default:0 }}%;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ row.prediction.soil_data.ph|floatformat:1 }}</td>
+                                <td class="history-meta">{{ row.prediction.created_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="history-card-list">
+            {% for row in prediction_rows %}
+                <div class="history-card">
+                    <div class="history-crop mb-3">
+                        <span class="history-crop-icon">
+                            <i class="fas fa-leaf"></i>
+                        </span>
+                        {{ row.prediction.crop_name }}
+                    </div>
+
+                    <div class="history-meta mb-3">
+                        <div><i class="fas fa-location-dot"></i> {{ row.prediction.soil_data.location }}</div>
+                        <div><i class="fas fa-calendar-alt"></i> {{ row.prediction.created_at|date:"M d, Y H:i" }}</div>
+                        <div><i class="fas fa-flask"></i> pH {{ row.prediction.soil_data.ph|floatformat:1 }}</div>
+                    </div>
+
+                    <div class="confidence-wrap">
+                        <div class="confidence-label">
+                            <span>Model confidence</span>
+                            <span>
+                                {% if row.confidence_percent is not None %}
+                                    {{ row.confidence_percent }}%
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="confidence-track">
+                            <div class="confidence-fill" style="width: {{ row.confidence_percent|default:0 }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="history-empty">
+            <div class="history-empty-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <h4 style="color: #666; margin-bottom: 10px;">No predictions yet</h4>
+            <p style="color: #999; margin-bottom: 30px;">Run a crop prediction from your dashboard to start building history.</p>
+            <a href="{% url 'dashboard' %}" class="btn btn-predict">
+                <i class="fas fa-chart-line"></i> Go to Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
