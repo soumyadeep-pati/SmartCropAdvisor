@@ -13,4 +13,11 @@ def get_weather(city):
 
     response = requests.get(url)
 
-    return response.json()
+    data = response.json()
+
+    return {
+        "city": data["name"],
+        "temperature": data["main"]["temp"],
+        "humidity": data["main"]["humidity"],
+        "description": data["weather"][0]["description"],
+    }
