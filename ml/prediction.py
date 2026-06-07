@@ -1,8 +1,7 @@
 import joblib
+import pandas as pd
 
-model = joblib.load(
-    "ml/models/model.pkl"
-)
+model = joblib.load("ml/models/model.pkl")
 
 
 def predict_crop(
@@ -15,16 +14,20 @@ def predict_crop(
     rainfall
 ):
 
-    prediction = model.predict([
-        [
-            nitrogen,
-            phosphorus,
-            potassium,
-            temperature,
-            humidity,
-            ph,
-            rainfall
-        ]
-    ])
+    data = pd.DataFrame([{
+        "N": nitrogen,
+        "P": phosphorus,
+        "K": potassium,
+        "temperature": temperature,
+        "humidity": humidity,
+        "ph": ph,
+        "rainfall": rainfall
+    }])
 
-    return prediction[0]
+    prediction = model.predict(data)
+
+    confidence = max(
+        model.predict_proba(data)[0]
+    )
+
+    return prediction[0], confidence

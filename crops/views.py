@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import SoilDataForm
-from .models import SoilData
+from .models import SoilData, CropPrediction
 from django.contrib.auth.decorators import login_required
 from weather.services import get_weather
+from ml.prediction import predict_crop
 
 
 def attach_weather_to_soil(soil):
@@ -93,4 +94,44 @@ def delete_soil_data(request, pk):
         request,
         'crops/delete_confirm.html',
         {'soil': soil}
+    )
+
+
+@login_required
+def predict_crop_view(request, pk):
+
+    soil = SoilData.objects.get(
+        pk=pk,
+        user=request.user
+    )
+
+    # Use actual weather data if available, fallback to defaults
+    temperature = soil.weather_temperature if soil.weather_temperature else 25
+    humidity = soil.weather_humidity if soil.weather_humidity else 70
+    
+    crop, confidence = predict_crop(
+        soil.nitrogen,
+        soil.phosphorus,
+        soil.potassium,
+        temperature,
+        humidity,
+        soil.ph,
+        soil.rainfall
+    )
+
+    CropPrediction.objects.create(
+        user=request.user,
+        soil_data=soil,
+        crop_name=crop,
+        confidence=confidence
+    )
+
+    return render(
+        request,
+        "crops/prediction.html",
+        {
+            "crop": crop,
+            "confidence": confidence,
+            "soil": soil
+        }
     )

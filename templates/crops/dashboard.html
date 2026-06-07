@@ -130,7 +130,10 @@
                                 {% endif %}
                             </td>
                             <td>{{ soil.created_at|date:"M d, Y H:i" }}</td>
-                            <td>
+                            <td style="white-space: nowrap;">
+                                <a href="{% url 'predict_crop' soil.pk %}" class="btn btn-sm btn-predict" title="Predict best crop">
+                                    <i class="fas fa-seedling"></i> Predict
+                                </a>
                                 <a href="{% url 'edit_soil' soil.pk %}" class="btn btn-sm btn-primary" title="Edit">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>

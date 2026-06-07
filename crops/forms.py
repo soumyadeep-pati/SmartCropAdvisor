@@ -9,5 +9,6 @@ class SoilDataForm(forms.ModelForm):
             'phosphorus',
             'potassium',
             'ph',
+            'rainfall',
             'location'
         ]
