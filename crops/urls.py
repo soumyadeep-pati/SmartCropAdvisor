@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import dashboard, delete_soil_data, edit_soil_data, home, add_soil_data, dashboard, edit_soil_data, delete_soil_data    
+from .views import add_soil_data, dashboard, delete_soil_data, edit_soil_data, home
 
 urlpatterns = [
     path('', home, name='home'),

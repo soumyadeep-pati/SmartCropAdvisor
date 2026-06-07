@@ -8,18 +8,42 @@
             <i class="fas fa-cloud-sun" style="color: var(--primary-color);"></i> Current Weather
         </h2>
 
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+            {% if user.is_authenticated %}
+                <a href="{% url 'weather_history' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-history"></i> History
+                </a>
+            {% else %}
+                <small class="text-muted">Log in to save weather searches.</small>
+            {% endif %}
+        </div>
+
+        <form method="get" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input
+                type="text"
+                name="city"
+                value="{{ city }}"
+                placeholder="Enter city"
+                required
+                style="flex: 1; padding: 12px 14px; border: 1px solid #ddd; border-radius: 8px;"
+            >
+            <button type="submit" class="btn btn-primary" style="padding: 12px 18px; border-radius: 8px;">
+                Search
+            </button>
+        </form>
+
         {% if error %}
             <div class="alert alert-danger" role="alert">
                 <i class="fas fa-exclamation-circle"></i> {{ error }}
             </div>
         {% elif weather %}
             <div class="card" style="border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 15px; box-shadow: var(--shadow);">
-                
+
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <h3 style="font-size: 2rem; margin: 0;">{{ weather.name }}</h3>
-                    {% if weather.weather.0.main %}
+                    <h3 style="font-size: 2rem; margin: 0;">{{ weather.city }}</h3>
+                    {% if weather.main %}
                         <p style="font-size: 1.1rem; text-transform: capitalize; margin-top: 10px;">
-                            {{ weather.weather.0.main }} - {{ weather.weather.0.description|title }}
+                            {{ weather.main }} - {{ weather.description|title }}
                         </p>
                     {% endif %}
                 </div>
@@ -28,35 +52,35 @@
                     <div style="background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 10px; text-align: center;">
                         <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Temperature</p>
                         <h4 style="margin: 10px 0 0 0; font-size: 1.8rem;">
-                            {{ weather.main.temp|floatformat:1 }}°C
+                            {{ weather.temperature|floatformat:1 }}&deg;C
                         </h4>
                     </div>
 
                     <div style="background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 10px; text-align: center;">
                         <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Humidity</p>
                         <h4 style="margin: 10px 0 0 0; font-size: 1.8rem;">
-                            {{ weather.main.humidity }}%
+                            {{ weather.humidity }}%
                         </h4>
                     </div>
 
                     <div style="background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 10px; text-align: center;">
                         <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Feels Like</p>
                         <h4 style="margin: 10px 0 0 0; font-size: 1.8rem;">
-                            {{ weather.main.feels_like|floatformat:1 }}°C
+                            {{ weather.feels_like|floatformat:1 }}&deg;C
                         </h4>
                     </div>
 
                     <div style="background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 10px; text-align: center;">
                         <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Wind Speed</p>
                         <h4 style="margin: 10px 0 0 0; font-size: 1.8rem;">
-                            {{ weather.wind.speed|floatformat:1 }} m/s
+                            {{ weather.wind_speed|floatformat:1 }} m/s
                         </h4>
                     </div>
                 </div>
 
                 <div style="background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 10px; margin-top: 20px;">
                     <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px;">Pressure</p>
-                    <p style="margin: 0; font-size: 1.2rem;">{{ weather.main.pressure }} hPa</p>
+                    <p style="margin: 0; font-size: 1.2rem;">{{ weather.pressure }} hPa</p>
                 </div>
 
             </div>

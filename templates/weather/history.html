@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Weather History - Smart Crop Advisor{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 30px;">
+        <div>
+            <h2 style="color: #2c3e50; font-weight: 700; margin-bottom: 8px;">
+                <i class="fas fa-history"></i> Weather History
+            </h2>
+            <p style="color: #666; margin: 0;">Your saved weather searches</p>
+        </div>
+        <a href="{% url 'weather' %}" class="btn btn-success">
+            <i class="fas fa-search"></i> New Search
+        </a>
+    </div>
+
+    {% if searches %}
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-map-marker-alt"></i> City</th>
+                            <th><i class="fas fa-cloud-sun"></i> Weather</th>
+                            <th><i class="fas fa-temperature-half"></i> Temperature</th>
+                            <th><i class="fas fa-droplet"></i> Humidity</th>
+                            <th><i class="fas fa-wind"></i> Wind</th>
+                            <th><i class="fas fa-calendar-alt"></i> Searched</th>
+                            <th><i class="fas fa-cog"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for search in searches %}
+                            <tr>
+                                <td><strong>{{ search.city }}</strong></td>
+                                <td>
+                                    {{ search.main }}<br>
+                                    <small class="text-muted">{{ search.description|title }}</small>
+                                </td>
+                                <td>
+                                    {{ search.temperature|floatformat:1 }}&deg;C<br>
+                                    <small class="text-muted">Feels {{ search.feels_like|floatformat:1 }}&deg;C</small>
+                                </td>
+                                <td>{{ search.humidity }}%</td>
+                                <td>{{ search.wind_speed|floatformat:1 }} m/s</td>
+                                <td>{{ search.searched_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'weather' %}?city={{ search.city|urlencode }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-search"></i> Search
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="card border-0" style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 4rem; color: #ddd; margin-bottom: 20px;">
+                <i class="fas fa-cloud"></i>
+            </div>
+            <h4 style="color: #666; margin-bottom: 10px;">No saved weather searches yet</h4>
+            <p style="color: #999; margin-bottom: 30px;">Search for a city to start building your weather history.</p>
+            <a href="{% url 'weather' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-search"></i> Search Weather
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

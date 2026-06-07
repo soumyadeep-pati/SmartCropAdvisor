@@ -31,7 +31,7 @@
                                 {{ soil_records.0.nitrogen|floatformat:1 }}
                             {% endif %}
                         </h5>
-                        <p style="color: #666;">Avg Nitrogen</p>
+                        <p style="color: #666;">Latest Nitrogen</p>
                     </div>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                                 {{ soil_records.0.ph|floatformat:1 }}
                             {% endif %}
                         </h5>
-                        <p style="color: #666;">Avg pH</p>
+                        <p style="color: #666;">Latest pH</p>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                                 {{ soil_records.0.potassium|floatformat:1 }}
                             {% endif %}
                         </h5>
-                        <p style="color: #666;">Avg Potassium</p>
+                        <p style="color: #666;">Latest Potassium</p>
                     </div>
                 </div>
             </div>
@@ -78,6 +78,9 @@
                             <th><i class="fas fa-leaf"></i> Phosphorus (P)</th>
                             <th><i class="fas fa-clover"></i> Potassium (K)</th>
                             <th><i class="fas fa-flask"></i> pH Level</th>
+                            <th><i class="fas fa-cloud-sun"></i> Weather</th>
+                            <th><i class="fas fa-temperature-half"></i> Temperature</th>
+                            <th><i class="fas fa-droplet"></i> Humidity</th>
                             <th><i class="fas fa-calendar-alt"></i> Date</th>
                             <th><i class="fas fa-cog"></i> Actions</th>
                         </tr>
@@ -99,6 +102,32 @@
                             </td>
                             <td>
                                 <span class="badge" style="background-color: #e74c3c;">{{ soil.ph }}</span>
+                            </td>
+                            <td>
+                                {% if soil.weather_error %}
+                                    <span class="text-danger">{{ soil.weather_error }}</span>
+                                {% elif soil.weather_main %}
+                                    <strong>{{ soil.weather_city|default:soil.location }}</strong><br>
+                                    <small class="text-muted">{{ soil.weather_main }} - {{ soil.weather_description|title }}</small>
+                                {% else %}
+                                    <span class="text-muted">Not saved</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if soil.weather_temperature is not None %}
+                                    {{ soil.weather_temperature|floatformat:1 }}&deg;C
+                                    <br><small class="text-muted">Feels {{ soil.weather_feels_like|floatformat:1 }}&deg;C</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if soil.weather_humidity is not None %}
+                                    {{ soil.weather_humidity }}%
+                                    <br><small class="text-muted">Wind {{ soil.weather_wind_speed|floatformat:1 }} m/s</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
                             </td>
                             <td>{{ soil.created_at|date:"M d, Y H:i" }}</td>
                             <td>
@@ -145,6 +174,21 @@
                                     <small class="text-muted">pH</small>
                                     <p style="font-weight: 600;">{{ soil.ph }}</p>
                                 </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Weather</small>
+                                {% if soil.weather_error %}
+                                    <p class="text-danger" style="font-weight: 600;">{{ soil.weather_error }}</p>
+                                {% elif soil.weather_main %}
+                                    <p style="font-weight: 600; margin-bottom: 4px;">
+                                        {{ soil.weather_temperature|floatformat:1 }}&deg;C, {{ soil.weather_description|title }}
+                                    </p>
+                                    <small class="text-muted">
+                                        Humidity {{ soil.weather_humidity }}% | Wind {{ soil.weather_wind_speed|floatformat:1 }} m/s
+                                    </small>
+                                {% else %}
+                                    <p class="text-muted" style="font-weight: 600;">Not saved</p>
+                                {% endif %}
                             </div>
                             <small class="text-muted">{{ soil.created_at|date:"M d, Y" }}</small>
                         </div>
