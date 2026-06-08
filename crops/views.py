@@ -6,7 +6,9 @@ from weather.services import get_weather
 from ml.prediction import predict_crop
 from django.db.models import Avg, Count
 import json
-
+from django.http import HttpResponse
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 def attach_weather_to_soil(soil):
     weather_data = get_weather(soil.location)
 
@@ -242,3 +244,94 @@ def prediction_history(request):
             'chart_data': chart_context,
         }
     )
+
+
+@login_required
+def download_prediction_report(request, prediction_id):
+
+    prediction = get_object_or_404(
+        CropPrediction,
+        id=prediction_id,
+        user=request.user
+    )
+
+    response = HttpResponse(
+        content_type='application/pdf'
+    )
+
+    response[
+        'Content-Disposition'
+    ] = (
+        f'attachment; '
+        f'filename="prediction_{prediction.id}.pdf"'
+    )
+
+    doc = SimpleDocTemplate(response)
+
+    styles = getSampleStyleSheet()
+
+    content = []
+
+    content.append(
+        Paragraph(
+            "Smart Crop Advisor Report",
+            styles['Title']
+        )
+    )
+
+    content.append(Spacer(1, 20))
+
+    soil = prediction.soil_data
+
+    content.append(
+        Paragraph(
+            f"Crop: {prediction.crop_name}",
+            styles['Normal']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Location: {soil.location}",
+            styles['Normal']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Nitrogen: {soil.nitrogen}",
+            styles['Normal']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Phosphorus: {soil.phosphorus}",
+            styles['Normal']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Potassium: {soil.potassium}",
+            styles['Normal']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"pH: {soil.ph}",
+            styles['Normal']
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Confidence: {prediction.confidence:.2f}",
+            styles['Normal']
+        )
+    )
+
+    doc.build(content)
+
+    return response

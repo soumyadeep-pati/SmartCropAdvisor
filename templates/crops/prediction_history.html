@@ -322,6 +322,7 @@
                             <th><i class="fas fa-gauge-high"></i> Confidence</th>
                             <th><i class="fas fa-flask"></i> Soil pH</th>
                             <th><i class="fas fa-calendar-alt"></i> Date</th>
+                            <th><i class="fas fa-file-pdf"></i> Report</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -357,6 +358,14 @@
                                 </td>
                                 <td>{{ row.prediction.soil_data.ph|floatformat:1 }}</td>
                                 <td class="history-meta">{{ row.prediction.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                <a
+                                    href="{% url 'download_prediction_report' row.prediction.id %}"
+                                    class="btn btn-danger btn-sm"
+                                >
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
