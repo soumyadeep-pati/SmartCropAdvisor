@@ -138,6 +138,51 @@
         margin-bottom: 16px;
     }
 
+    /* ========== CHART CARD STYLES ========== */
+    .chart-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 28px;
+        margin-bottom: 28px;
+        border-top: 4px solid var(--secondary-color);
+    }
+
+    .chart-card-title {
+        color: var(--dark-color);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chart-card-icon {
+        color: var(--secondary-color);
+        font-size: 1.5rem;
+    }
+
+    /* Chart container with responsive sizing */
+    .chart-container {
+        position: relative;
+        height: 400px;
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+    /* Empty state for chart when no data */
+    .chart-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 400px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
     @media (max-width: 768px) {
         .history-page {
             padding: 32px 0;
@@ -164,6 +209,19 @@
         .history-card-list {
             display: block;
         }
+
+        /* Responsive chart sizing for mobile */
+        .chart-container {
+            height: 300px;
+        }
+
+        .chart-card {
+            padding: 20px;
+        }
+
+        .chart-card-title {
+            font-size: 1.1rem;
+        }
     }
 </style>
 {% endblock %}
@@ -189,11 +247,71 @@
     </div>
 
     {% if prediction_rows %}
-        <div class="history-stat">
-            <div class="history-stat-value">{{ prediction_rows|length }}</div>
-            <p class="history-stat-label">Total predictions saved</p>
+        <!-- ========== ANALYTICS CARDS SECTION ========== -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h2>{{ total_predictions }}</h2>
+                        <p>Total Predictions</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h2>
+                            {% if avg_confidence %}
+                                {{ avg_confidence|floatformat:2 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h2>
+                        <p>Average Confidence</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h2>
+                            {% if top_crop %}
+                                {{ top_crop.crop_name }}
+                            {% else %}
+                                None
+                            {% endif %}
+                        </h2>
+                        <p>Most Recommended Crop</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
+        <!-- ========== CROP RECOMMENDATION DISTRIBUTION CHART ========== -->
+        {% if chart_data.labels|length > 0 %}
+            <div class="chart-card">
+                <h3 class="chart-card-title">
+                    <i class="fas fa-chart-bar chart-card-icon"></i>
+                    Crop Recommendation Distribution
+                </h3>
+                <p style="color: #6c757d; margin-bottom: 20px; font-size: 0.95rem;">
+                    Analysis of all crop recommendations by frequency
+                </p>
+
+                <!-- Container for Chart.js canvas element -->
+                <div class="chart-container">
+                    <canvas id="cropDistributionChart"></canvas>
+                </div>
+
+                <!-- Hidden data container: Uses Django json_script filter for secure data passing -->
+                <!-- json_script automatically escapes and encodes the data for safe JavaScript consumption -->
+                {{ chart_data|json_script:"chartData" }}
+            </div>
+        {% endif %}
+
+        <!-- ========== PREDICTION HISTORY TABLE (Desktop View) ========== -->
         <div class="table-container history-table">
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -246,6 +364,7 @@
             </div>
         </div>
 
+        <!-- ========== PREDICTION HISTORY CARDS (Mobile View) ========== -->
         <div class="history-card-list">
             {% for row in prediction_rows %}
                 <div class="history-card">
@@ -281,6 +400,7 @@
             {% endfor %}
         </div>
     {% else %}
+        <!-- ========== EMPTY STATE WHEN NO PREDICTIONS ========== -->
         <div class="history-empty">
             <div class="history-empty-icon">
                 <i class="fas fa-seedling"></i>
@@ -293,4 +413,201 @@
         </div>
     {% endif %}
 </div>
+
+<!-- ========== CHART.JS CDN ========== -->
+<!-- Loading Chart.js library from CDN for creating responsive, interactive charts -->
+<!-- Version 3.9.1 is stable and widely supported -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<!-- ========== CHART INITIALIZATION JAVASCRIPT ========== -->
+<script>
+    /**
+     * Initialize Crop Distribution Chart
+     * 
+     * This script:
+     * 1. Waits for DOM to load
+     * 2. Retrieves chart data from the hidden json_script container
+     * 3. Configures Chart.js with professional styling
+     * 4. Renders the bar chart
+     * 5. Provides responsive behavior
+     */
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // ========== RETRIEVE CHART DATA FROM TEMPLATE ==========
+        // The json_script filter encodes and securely passes Django data to JavaScript
+        // getElementById retrieves the JSON encoded data from the hidden script tag
+        const chartDataElement = document.getElementById('chartData');
+
+        // If no chart data exists (e.g., no predictions), skip initialization
+        if (!chartDataElement) {
+            console.log('No chart data available');
+            return;
+        }
+
+        // Parse the JSON data from the element's text content
+        const chartData = JSON.parse(chartDataElement.textContent);
+
+        // ========== GET CANVAS ELEMENT ==========
+        // Canvas is the HTML5 element where Chart.js renders the chart
+        const ctx = document.getElementById('cropDistributionChart');
+
+        // If canvas doesn't exist, exit gracefully
+        if (!ctx) {
+            console.error('Chart canvas not found');
+            return;
+        }
+
+        // ========== DEFINE CHART COLORS ==========
+        // Array of professional colors for chart bars
+        // Each crop gets a distinct color for visual differentiation
+        const colors = [
+            '#2ecc71', // Green
+            '#3498db', // Blue
+            '#e74c3c', // Red
+            '#f39c12', // Orange
+            '#9b59b6', // Purple
+            '#1abc9c', // Turquoise
+            '#34495e', // Dark Blue-Gray
+            '#e67e22', // Dark Orange
+            '#27ae60', // Dark Green
+            '#2980b9', // Darker Blue
+        ];
+
+        // ========== GENERATE BACKGROUND COLORS ==========
+        // Map colors to each crop, cycling through if more crops than colors
+        const backgroundColors = chartData.labels.map((_, index) => 
+            colors[index % colors.length]
+        );
+
+        // ========== GENERATE BORDER COLORS (darker shade) ==========
+        // Border colors are slightly darker for contrast
+        const borderColors = backgroundColors.map(color => {
+            // Make color slightly darker by manipulating hex
+            const darker = color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
+                (m, r, g, b) => '#' + 
+                parseInt(r, 16).toString(16) + 
+                parseInt(g, 16).toString(16) + 
+                parseInt(b, 16).toString(16)
+            );
+            return darker;
+        });
+
+        // ========== INITIALIZE CHART.JS INSTANCE ==========
+        // Create new Chart instance with configured options
+        const chart = new Chart(ctx, {
+            type: 'bar', // Bar chart type
+
+            data: {
+                // X-axis labels: crop names
+                labels: chartData.labels,
+                
+                datasets: [{
+                    // Chart data: recommendation counts
+                    data: chartData.data,
+                    
+                    // Visual styling
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 2, // Add border around bars
+                    borderRadius: 6, // Rounded corners on bars
+                    borderSkipped: false, // Apply border to all sides
+                    
+                    // Add padding between bars
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.8,
+                }],
+            },
+
+            options: {
+                responsive: true, // Chart resizes with container
+                maintainAspectRatio: false, // Allow custom height
+                
+                // ========== PLUGINS CONFIGURATION ==========
+                plugins: {
+                    legend: {
+                        display: false, // Hide legend for single dataset
+                    },
+                    
+                    tooltip: {
+                        // Customize tooltip appearance
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 6,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                        },
+                        bodyFont: {
+                            size: 13,
+                        },
+                        displayColors: false, // Don't show color square
+                        
+                        // Custom tooltip content
+                        callbacks: {
+                            label: function(context) {
+                                return 'Recommendations: ' + context.parsed.y;
+                            }
+                        }
+                    },
+                },
+
+                // ========== SCALES CONFIGURATION ==========
+                scales: {
+                    y: {
+                        beginAtZero: true, // Start Y-axis at 0
+                        ticks: {
+                            stepSize: 1, // Show integer values only
+                            font: {
+                                size: 12,
+                            },
+                        },
+                        title: {
+                            display: true,
+                            text: 'Number of Recommendations',
+                            font: {
+                                size: 13,
+                                weight: 'bold',
+                            },
+                        },
+                        grid: {
+                            drawBorder: false, // Remove left border
+                            color: 'rgba(200, 200, 200, 0.1)', // Light grid lines
+                        },
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Crop Name',
+                            font: {
+                                size: 13,
+                                weight: 'bold',
+                            },
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                            },
+                        },
+                        grid: {
+                            display: false, // No vertical grid lines
+                        },
+                    },
+                },
+
+                // ========== ANIMATION CONFIGURATION ==========
+                animation: {
+                    duration: 750, // Smooth animation on load (ms)
+                    easing: 'easeInOutQuart',
+                },
+            },
+        });
+
+        // ========== DEBUG LOG ==========
+        // Log successful chart initialization to browser console
+        console.log('Crop Distribution Chart initialized successfully', {
+            crops: chartData.labels.length,
+            totalRecommendations: chartData.data.reduce((a, b) => a + b, 0),
+        });
+    });
+</script>
 {% endblock %}

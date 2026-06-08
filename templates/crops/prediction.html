@@ -1,26 +1,100 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Crop Prediction
+{% endblock %}
+
 {% block content %}
 
-<div class="card p-5">
+<div class="container mt-5">
 
-    <h2>Recommended Crop</h2>
+    {% if error %}
 
-    <h1 class="text-success">
-        🌾 {{ crop }}
-    </h1>
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
 
-    <hr>
+    {% else %}
 
-    <p>
-        Confidence:
-        {{ confidence|floatformat:2 }}
-    </p>
+        <div class="card shadow">
 
-    <p>
-        Location:
-        {{ soil.location }}
-    </p>
+            <div class="card-body">
+
+                <h2 class="text-success">
+                    🌾 Recommended Crop
+                </h2>
+
+                <hr>
+
+                <h1>
+                    {{ crop }}
+                </h1>
+
+                <p>
+                    Confidence:
+                    <strong>
+                        {{ confidence|floatformat:2 }}
+                    </strong>
+                </p>
+
+                <hr>
+
+                <h4>Soil Information</h4>
+
+                <p>
+                    Location:
+                    {{ soil.location }}
+                </p>
+
+                <p>
+                    Nitrogen:
+                    {{ soil.nitrogen }}
+                </p>
+
+                <p>
+                    Phosphorus:
+                    {{ soil.phosphorus }}
+                </p>
+
+                <p>
+                    Potassium:
+                    {{ soil.potassium }}
+                </p>
+
+                <p>
+                    pH:
+                    {{ soil.ph }}
+                </p>
+
+                <hr>
+
+                <h4>Weather Data Used</h4>
+
+                <p>
+                    Temperature:
+                    {{ temperature }}°C
+                </p>
+
+                <p>
+                    Humidity:
+                    {{ humidity }}%
+                </p>
+
+                <p>
+                    Weather:
+                    {{ weather.description }}
+                </p>
+
+                <p>
+                    Wind Speed:
+                    {{ weather.wind_speed }} m/s
+                </p>
+
+            </div>
+
+        </div>
+
+    {% endif %}
 
 </div>
 
