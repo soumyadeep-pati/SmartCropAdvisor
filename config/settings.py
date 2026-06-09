@@ -17,9 +17,12 @@ WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 SECRET_KEY = 'django-insecure-5mm$fv52$#+)%=lt1ab9wzl%s4f!7*^8(zm@5q#tyjk3#k_sgx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://smartcropadvisor.onrender.com",
+]
 
 
 # Application definition
