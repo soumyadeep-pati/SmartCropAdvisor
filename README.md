@@ -4,7 +4,7 @@ An AI-powered crop recommendation system built with Django and Machine Learning.
 
 ## Live Demo
 
-https://your-render-url.onrender.com
+https://smartcropadvisor.onrender.com
 
 ## Features
 
