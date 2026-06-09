@@ -1,61 +1,39 @@
-# Smart Crop Advisor
+# 🌾 Smart Crop Advisor
 
-An AI-powered crop recommendation system built with Django, Machine Learning, and Weather APIs.
+An AI-powered crop recommendation system built with Django and Machine Learning.
+
+## Live Demo
+
+https://your-render-url.onrender.com
 
 ## Features
 
-* User Authentication
+* User Authentication (Login/Signup)
 * Soil Data Management
 * Real-Time Weather Integration
-* Machine Learning Crop Prediction
+* AI Crop Recommendation
 * Prediction Confidence Score
 * Prediction History
 * Analytics Dashboard
-* Crop Distribution Charts
 * PDF Report Export
+* Docker Support
+* Cloud Deployment on Render
 
 ## Tech Stack
 
-### Backend
-
-* Django
 * Python
-
-### Machine Learning
-
+* Django
 * Scikit-Learn
-* Random Forest Classifier
-
-### Database
-
 * SQLite
+* Bootstrap
+* OpenWeather API
+* Docker
+* Git & GitHub
+* Render
 
-### Frontend
+## Screenshots
 
-* Bootstrap 5
-* Chart.js
-
-### APIs
-
-* OpenWeatherMap API
-
-## Project Workflow
-
-User Login
-↓
-Enter Soil Data
-↓
-Fetch Weather Data
-↓
-Run ML Model
-↓
-Recommend Crop
-↓
-Save Prediction
-↓
-Analytics Dashboard
-↓
-Download PDF Report
+(Add screenshots here)
 
 ## Installation
 
@@ -64,7 +42,6 @@ git clone <repository-url>
 cd SmartCropAdvisor
 
 python -m venv venv
-
 venv\Scripts\activate
 
 pip install -r requirements.txt
@@ -74,14 +51,29 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+## Machine Learning
+
+The project uses a Random Forest Classifier trained on crop recommendation data.
+
+Input Features:
+
+* Nitrogen
+* Phosphorus
+* Potassium
+* Temperature
+* Humidity
+* pH
+* Rainfall
+
+Output:
+
+* Recommended Crop
+* Confidence Score
+
 ## Future Improvements
 
-* Rainfall API Integration
-* Email Reports
-* Mobile Application
+* Crop Disease Detection
+* Fertilizer Recommendation
+* Yield Prediction
 * Multi-language Support
-* Deep Learning Models
-
-## Author
-
-Soumyadeep Pati
+* Weather Forecast Based Recommendation
