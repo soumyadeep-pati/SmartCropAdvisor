@@ -19,15 +19,18 @@ SECRET_KEY = 'django-insecure-5mm$fv52$#+)%=lt1ab9wzl%s4f!7*^8(zm@5q#tyjk3#k_sgx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["smartcropadvisor.onrender.com"]
 CSRF_TRUSTED_ORIGINS = [
     "https://smartcropadvisor.onrender.com",
-    "https://*.onrender.com",
+    
 ]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
+print("DEBUG =", DEBUG)
+print("ALLOWED_HOSTS =", ALLOWED_HOSTS)
+print("CSRF_TRUSTED_ORIGINS =", CSRF_TRUSTED_ORIGINS)
 
 # Application definition
 
