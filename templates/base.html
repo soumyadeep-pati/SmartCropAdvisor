@@ -1,535 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Smart Crop Advisor{% endblock %}</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-color: #2ecc71;
-            --secondary-color: #27ae60;
-            --accent-color: #f39c12;
-            --dark-color: #2c3e50;
-            --light-bg: #ecf0f1;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #2c3e50;
-            line-height: 1.6;
-        }
-
-        /* Navbar Styling */
-        .navbar {
-            box-shadow: var(--shadow);
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            padding: 1rem 0;
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 0.5px;
-            color: white !important;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            margin: 0 0.5rem;
-            transition: all 0.3s ease;
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-
-        .nav-link:hover {
-            color: white !important;
-            transform: translateY(-2px);
-        }
-
-        .btn-outline-light {
-            border: 2px solid white;
-            color: white !important;
-            font-weight: 600;
-            margin: 0 0.25rem;
-        }
-
-        .btn-outline-light:hover {
-            background-color: white;
-            color: var(--primary-color) !important;
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background-color: #3498db !important;
-            border: none;
-            font-weight: 600;
-            margin: 0 0.25rem;
-        }
-
-        .btn-primary:hover {
-            background-color: #2980b9 !important;
-            transform: translateY(-2px);
-        }
-
-        .nav-user-display {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-left: 20px;
-        }
-
-        .user-badge {
-            padding: 0.5rem 1.2rem;
-            font-size: 0.95rem;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .user-badge:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .user-badge i {
-            font-size: 1.1rem;
-        }
-
-        .badge {
-            padding: 0.6rem 1rem;
-            font-size: 0.9rem;
-        }
-
-        .user-menu-divider {
-            border-left: 1px solid rgba(255, 255, 255, 0.2);
-            margin: 0 1rem;
-            height: 2rem;
-            align-self: center;
-        }
-
-        .user-menu-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: auto;
-            padding-left: 1rem;
-        }
-
-        .logout-form {
-            display: inline;
-        }
-
-        .btn-logout {
-            background-color: #ff6b6b;
-            border: 2px solid transparent;
-            color: white;
-            font-weight: 600;
-            padding: 0.5rem 1.2rem;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-logout:hover {
-            background-color: #ff5252;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-            color: white;
-        }
-
-        .btn-logout:active {
-            transform: translateY(0);
-        }
-
-        @media (max-width: 768px) {
-            .user-menu-divider {
-                display: none;
-            }
-
-            .user-menu-section {
-                margin-left: 0;
-                flex-wrap: wrap;
-                padding-left: 0;
-                width: 100%;
-            }
-        }
-
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 100px 20px;
-            text-align: center;
-            border-radius: 0;
-            margin-bottom: 50px;
-        }
-
-        .hero-section h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .hero-section p {
-            font-size: 1.3rem;
-            margin-bottom: 30px;
-            opacity: 0.95;
-        }
-
-        .btn-success {
-            background-color: var(--accent-color);
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 0.75rem 2.5rem;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-success:hover {
-            background-color: #e67e22;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(243, 156, 18, 0.3);
-        }
-
-        .btn-predict {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-width: 112px;
-            padding: 0.55rem 1rem;
-            border: 1px solid rgba(39, 174, 96, 0.28);
-            border-radius: 999px;
-            background: linear-gradient(135deg, #16a085 0%, #2ecc71 100%);
-            color: white !important;
-            font-size: 0.9rem;
-            font-weight: 700;
-            line-height: 1;
-            box-shadow: 0 8px 18px rgba(46, 204, 113, 0.24);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-            white-space: nowrap;
-        }
-
-        .btn-predict i {
-            font-size: 0.95rem;
-        }
-
-        .btn-predict:hover {
-            background: linear-gradient(135deg, #149174 0%, #27ae60 100%);
-            color: white !important;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(46, 204, 113, 0.34);
-        }
-
-        .btn-predict:active {
-            transform: translateY(0);
-            box-shadow: 0 5px 12px rgba(46, 204, 113, 0.26);
-        }
-
-        .btn-danger {
-            background-color: #e74c3c;
-            border: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        /* Features Section */
-        .features-section {
-            margin: 60px 0;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            transition: all 0.3s ease;
-            margin-bottom: 30px;
-            border-top: 5px solid var(--primary-color);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .feature-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-
-        .feature-card h5 {
-            color: var(--dark-color);
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        /* Forms */
-        .form-container {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            margin: 30px 0;
-        }
-
-        .form-label {
-            color: var(--dark-color);
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .form-control {
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 0.75rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
-        }
-
-        .form-control::placeholder {
-            color: #999;
-        }
-
-        /* Cards */
-        .card {
-            border: none;
-            box-shadow: var(--shadow);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-title {
-            color: var(--dark-color);
-            font-weight: 700;
-        }
-
-        /* Table */
-        .table-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            margin: 30px 0;
-            overflow-x: auto;
-        }
-
-        .table {
-            margin: 0;
-        }
-
-        .table thead {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-        }
-
-        .table thead th {
-            border: none;
-            font-weight: 600;
-            padding: 1rem;
-        }
-
-        .table tbody td {
-            padding: 1rem;
-            vertical-align: middle;
-            border-color: #eee;
-        }
-
-        .table tbody tr {
-            transition: all 0.3s ease;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-            transform: scale(1.01);
-        }
-
-        /* Footer */
-        footer {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #34495e 100%);
-            color: white;
-            padding: 30px 0;
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        footer p {
-            margin: 0;
-            font-size: 0.95rem;
-        }
-
-        /* Alerts */
-        .alert {
-            border-radius: 10px;
-            border: none;
-            box-shadow: var(--shadow);
-        }
-
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .invalid-feedback {
-            color: #dc3545;
-            font-size: 0.85em;
-            margin-top: 0.5rem;
-            display: block;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-section h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero-section p {
-                font-size: 1rem;
-            }
-
-            .form-container {
-                padding: 20px;
-            }
-        }
-
-        /* Accessibility */
-        a:focus, button:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-    </style>
-    {% block extra_css %}{% endblock %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered crop recommendation system for smarter farming decisions.">
+  <meta name="theme-color" content="#16a34a">
+  <title>{% block title %}Smart Crop Advisor{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/"><i class="fas fa-leaf"></i> Smart Crop Advisor</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+  <!-- ═══ Navbar ═══ -->
+  <nav class="navbar-modern" role="navigation" aria-label="Main navigation">
+    <div class="navbar-inner">
+      <a class="navbar-brand-modern" href="/">
+        <span class="brand-icon"><i class="fas fa-leaf"></i></span>
+        <span class="d-none d-sm-inline">Smart Crop Advisor</span>
+      </a>
+
+      <div class="navbar-links" id="navLinks">
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
+          <a href="{% url 'add_soil' %}"><i class="fas fa-plus-circle"></i> Add Soil</a>
+          <a href="{% url 'prediction_history' %}"><i class="fas fa-history"></i> Predictions</a>
+          <a href="{% url 'weather' %}"><i class="fas fa-cloud-sun"></i> Weather</a>
+        {% endif %}
+      </div>
+
+      <div class="navbar-right">
+        {% if user.is_authenticated %}
+          <div class="user-dropdown">
+            <button class="user-dropdown-toggle" id="userDropdownToggle" aria-haspopup="true" aria-expanded="false">
+              <span class="user-avatar">{{ user.username|first|upper }}</span>
+              <span class="d-none d-md-inline" style="font-weight:600;">{{ user.username }}</span>
+              <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i>
+            </button>
+            <div class="dropdown-menu-modern" id="userDropdownMenu" role="menu">
+              <a href="{% url 'dashboard' %}" role="menuitem"><i class="fas fa-chart-line"></i> Dashboard</a>
+              <a href="{% url 'prediction_history' %}" role="menuitem"><i class="fas fa-history"></i> Predictions</a>
+              <a href="{% url 'weather_history' %}" role="menuitem"><i class="fas fa-clock"></i> Weather History</a>
+              <div class="dropdown-divider"></div>
+              <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" role="menuitem"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+              </form>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn-modern btn-ghost">Log In</a>
+          <a href="{% url 'signup' %}" class="btn-modern btn-primary-modern">Get Started</a>
+        {% endif %}
+
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
-                </li>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'add_soil' %}">
-                        <i class="fas fa-plus-circle"></i> Add Soil Data
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'dashboard' %}">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a
-                    class="nav-link"
-                    href="{% url 'prediction_history' %}">
-                    
-                    Predictions
-                </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'weather' %}">
-                        <i class="fas fa-cloud-sun"></i> Weather
-                    </a>
-                </li>
-            </ul>
-
-            {% if user.is_authenticated %}
-                <div class="user-menu-section">
-                    <div class="user-badge">
-                        <i class="fas fa-user-circle"></i> 
-                        <span>{{ user.username }}</span>
-                    </div>
-                    <form method="POST" action="{% url 'logout' %}" class="logout-form">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </form>
-                </div>
-            {% else %}
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="btn btn-sm btn-outline-light" href="{% url 'login' %}">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="btn btn-sm btn-primary" href="{% url 'signup' %}">
-                            <i class="fas fa-user-plus"></i> Sign Up
-                        </a>
-                    </li>
-                </ul>
-            {% endif %}
+  <!-- ═══ Messages ═══ -->
+  {% if messages %}
+    <div style="position:fixed;top:calc(var(--navbar-height) + 12px);right:16px;z-index:1050;display:flex;flex-direction:column;gap:8px;max-width:400px;">
+      {% for msg in messages %}
+        <div class="alert-modern alert-auto-dismiss alert-{% if msg.tags == 'error' %}danger{% elif msg.tags == 'warning' %}warning{% elif msg.tags == 'success' %}success{% else %}info{% endif %}-modern" role="alert">
+          <i class="fas fa-{% if msg.tags == 'success' %}check-circle{% elif msg.tags == 'error' %}exclamation-circle{% elif msg.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+          <span>{{ msg }}</span>
         </div>
+      {% endfor %}
     </div>
-</nav>
+  {% endif %}
 
-<main class="main-content">
-    {% block content %}
-    {% endblock %}
-</main>
+  <!-- ═══ Main Content ═══ -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
 
-<footer>
-    <div class="container">
-        <p>&copy; 2024 Smart Crop Advisor. All rights reserved. <i class="fas fa-heart text-danger"></i> Built with passion</p>
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer-modern">
+    <div class="container-narrow">
+      <div class="row g-5">
+        <div class="col-lg-4">
+          <a class="auth-brand mb-3" href="/" style="color:white;">
+            <span class="brand-icon"><i class="fas fa-leaf"></i></span>
+            Smart Crop Advisor
+          </a>
+          <p style="font-size:var(--text-sm);line-height:1.7;">AI-powered crop recommendations based on soil analysis, weather data, and machine learning for smarter farming decisions.</p>
+        </div>
+        <div class="col-6 col-lg-2">
+          <h6>Platform</h6>
+          <a href="/">Home</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'add_soil' %}">Add Soil Data</a>
+            <a href="{% url 'prediction_history' %}">Predictions</a>
+          {% endif %}
+        </div>
+        <div class="col-6 col-lg-2">
+          <h6>Weather</h6>
+          <a href="{% url 'weather' %}">Current Weather</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'weather_history' %}">Search History</a>
+          {% endif %}
+        </div>
+        <div class="col-lg-4">
+          <h6>Contact</h6>
+          <p style="font-size:var(--text-sm);"><i class="fas fa-envelope" style="margin-right:8px;"></i> support@smartcropadvisor.com</p>
+          <div style="display:flex;gap:var(--space-3);margin-top:var(--space-3);">
+            <a href="#" style="width:36px;height:36px;border-radius:50%;background:var(--gray-800);display:flex;align-items:center;justify-content:center;color:var(--gray-400);"><i class="fab fa-twitter"></i></a>
+            <a href="#" style="width:36px;height:36px;border-radius:50%;background:var(--gray-800);display:flex;align-items:center;justify-content:center;color:var(--gray-400);"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" style="width:36px;height:36px;border-radius:50%;background:var(--gray-800);display:flex;align-items:center;justify-content:center;color:var(--gray-400);"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; {% now "Y" %} Smart Crop Advisor. All rights reserved. Built with <i class="fas fa-heart" style="color:var(--danger);"></i> for farmers.</p>
+      </div>
     </div>
-</footer>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- ═══ Scripts ═══ -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

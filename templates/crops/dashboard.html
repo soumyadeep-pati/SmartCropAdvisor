@@ -1,225 +1,207 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard - Smart Crop Advisor{% endblock %}
 
 {% block content %}
+<div class="container-narrow section">
 
-<div class="container mt-5">
-    <div style="margin-bottom: 40px;">
-        <h2 style="color: #2c3e50; font-weight: 700; margin-bottom: 10px;">
-            <i class="fas fa-chart-line"></i> Dashboard
-        </h2>
-        <p style="color: #666;">View and manage all your soil records</p>
+  <div class="dashboard-header">
+    <div>
+      <h1><i class="fas fa-chart-line text-green"></i> Dashboard</h1>
+      <p>View and manage all your soil records</p>
+    </div>
+    <a href="{% url 'add_soil' %}" class="btn-modern btn-primary-modern btn-lg-modern">
+      <i class="fas fa-plus"></i> Add Soil Data
+    </a>
+  </div>
+
+  {% if soil_records %}
+
+    <!-- Stat Cards -->
+    <div class="stat-grid animate-stagger">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:var(--green-100);color:var(--green-600);">
+          <i class="fas fa-database"></i>
+        </div>
+        <div class="stat-card-body">
+          <div class="stat-card-value">{{ soil_records|length }}</div>
+          <p class="stat-card-label">Records on this page</p>
+        </div>
+      </div>
+
+      <div class="stat-card" style="--bar:var(--primary);">
+        <div class="stat-card-icon" style="background:#dbeafe;color:#2563eb;">
+          <i class="fas fa-flask"></i>
+        </div>
+        <div class="stat-card-body">
+          <div class="stat-card-value">{% if latest_soil %}{{ latest_soil.nitrogen }}{% else %}-{% endif %}</div>
+          <p class="stat-card-label">Latest Nitrogen (N)</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#fce7f3;color:#db2777;">
+          <i class="fas fa-leaf"></i>
+        </div>
+        <div class="stat-card-body">
+          <div class="stat-card-value">{% if latest_soil %}{{ latest_soil.ph }}{% else %}-{% endif %}</div>
+          <p class="stat-card-label">Latest pH Level</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#fef3c7;color:#d97706;">
+          <i class="fas fa-fire"></i>
+        </div>
+        <div class="stat-card-body">
+          <div class="stat-card-value">{% if latest_soil %}{{ latest_soil.potassium }}{% else %}-{% endif %}</div>
+          <p class="stat-card-label">Latest Potassium (K)</p>
+        </div>
+      </div>
     </div>
 
-    {% if soil_records %}
-        <!-- Stats -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body" style="padding: 30px;">
-                        <h5 class="text-success" style="font-size: 2rem; font-weight: 700;">{{ soil_records|length }}</h5>
-                        <p style="color: #666;">Total Records</p>
-                    </div>
+    <!-- Soil Records Table (desktop) -->
+    <div class="card-modern d-none d-md-block">
+      <div class="card-header">
+        <i class="fas fa-list text-green"></i> Soil Records
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>N</th>
+              <th>P</th>
+              <th>K</th>
+              <th>pH</th>
+              <th>Weather</th>
+              <th>Temp</th>
+              <th>Humidity</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for soil in soil_records %}
+            <tr>
+              <td data-label="Location"><strong>{{ soil.location }}</strong></td>
+              <td data-label="N"><span class="badge-modern badge-blue">{{ soil.nitrogen }}</span></td>
+              <td data-label="P"><span class="badge-modern badge-purple">{{ soil.phosphorus }}</span></td>
+              <td data-label="K"><span class="badge-modern badge-yellow">{{ soil.potassium }}</span></td>
+              <td data-label="pH"><span class="badge-modern badge-red">{{ soil.ph }}</span></td>
+              <td data-label="Weather">
+                {% if soil.weather_error %}
+                  <span style="color:var(--danger);font-size:var(--text-xs);">{{ soil.weather_error }}</span>
+                {% elif soil.weather_main %}
+                  <strong style="font-size:var(--text-sm);">{{ soil.weather_city|default:soil.location }}</strong>
+                  <div style="font-size:var(--text-xs);color:var(--gray-500);">{{ soil.weather_main }} &middot; {{ soil.weather_description|title }}</div>
+                {% else %}
+                  <span class="text-muted-modern" style="font-size:var(--text-xs);">Not saved</span>
+                {% endif %}
+              </td>
+              <td data-label="Temp">
+                {% if soil.weather_temperature is not None %}
+                  <strong>{{ soil.weather_temperature|floatformat:1 }}&deg;C</strong>
+                  <div style="font-size:var(--text-xs);color:var(--gray-500);">Feels {{ soil.weather_feels_like|floatformat:1 }}&deg;C</div>
+                {% else %}<span class="text-muted-modern">-</span>{% endif %}
+              </td>
+              <td data-label="Humidity">
+                {% if soil.weather_humidity is not None %}
+                  <strong>{{ soil.weather_humidity }}%</strong>
+                  <div style="font-size:var(--text-xs);color:var(--gray-500);">Wind {{ soil.weather_wind_speed|floatformat:1 }} m/s</div>
+                {% else %}<span class="text-muted-modern">-</span>{% endif %}
+              </td>
+              <td data-label="Date" style="white-space:nowrap;">{{ soil.created_at|date:"M d, Y" }}</td>
+              <td data-label="Actions">
+                <div style="display:flex;gap:var(--space-1);">
+                  <a href="{% url 'predict_crop' soil.pk %}" class="btn-modern btn-primary-modern btn-sm-modern" title="Predict">
+                    <i class="fas fa-seedling"></i>
+                  </a>
+                  <a href="{% url 'edit_soil' soil.pk %}" class="btn-modern btn-outline-modern btn-sm-modern" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="{% url 'delete_soil' soil.pk %}" class="btn-modern btn-danger-modern btn-sm-modern" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </a>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body" style="padding: 30px;">
-                        <h5 style="font-size: 2rem; font-weight: 700; color: #3498db;">
-                            {% if soil_records %}
-                                {{ soil_records.0.nitrogen|floatformat:1 }}
-                            {% endif %}
-                        </h5>
-                        <p style="color: #666;">Latest Nitrogen</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body" style="padding: 30px;">
-                        <h5 style="font-size: 2rem; font-weight: 700; color: #e74c3c;">
-                            {% if soil_records %}
-                                {{ soil_records.0.ph|floatformat:1 }}
-                            {% endif %}
-                        </h5>
-                        <p style="color: #666;">Latest pH</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body" style="padding: 30px;">
-                        <h5 style="font-size: 2rem; font-weight: 700; color: #f39c12;">
-                            {% if soil_records %}
-                                {{ soil_records.0.potassium|floatformat:1 }}
-                            {% endif %}
-                        </h5>
-                        <p style="color: #666;">Latest Potassium</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- Table View -->
-        <div class="table-container">
-            <div style="margin-bottom: 20px;">
-                <h4 style="color: #2c3e50; font-weight: 700; margin-bottom: 15px;">
-                    <i class="fas fa-list"></i> Soil Records
-                </h4>
+    <!-- Mobile Cards -->
+    <div class="d-md-none animate-stagger" style="display:grid;gap:var(--space-3);">
+      {% for soil in soil_records %}
+        <div class="card-modern">
+          <div class="card-body" style="padding:var(--space-4);">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:var(--space-3);">
+              <div>
+                <strong style="font-size:var(--text-base);">{{ soil.location }}</strong>
+                <div style="font-size:var(--text-xs);color:var(--gray-500);">{{ soil.created_at|date:"M d, Y" }}</div>
+              </div>
+              <div style="display:flex;gap:var(--space-1);">
+                <a href="{% url 'predict_crop' soil.pk %}" class="btn-modern btn-primary-modern btn-sm-modern"><i class="fas fa-seedling"></i></a>
+                <a href="{% url 'edit_soil' soil.pk %}" class="btn-modern btn-outline-modern btn-sm-modern"><i class="fas fa-edit"></i></a>
+                <a href="{% url 'delete_soil' soil.pk %}" class="btn-modern btn-danger-modern btn-sm-modern"><i class="fas fa-trash"></i></a>
+              </div>
             </div>
-
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-map-marker-alt"></i> Location</th>
-                            <th><i class="fas fa-atom"></i> Nitrogen (N)</th>
-                            <th><i class="fas fa-leaf"></i> Phosphorus (P)</th>
-                            <th><i class="fas fa-clover"></i> Potassium (K)</th>
-                            <th><i class="fas fa-flask"></i> pH Level</th>
-                            <th><i class="fas fa-cloud-sun"></i> Weather</th>
-                            <th><i class="fas fa-temperature-half"></i> Temperature</th>
-                            <th><i class="fas fa-droplet"></i> Humidity</th>
-                            <th><i class="fas fa-calendar-alt"></i> Date</th>
-                            <th><i class="fas fa-cog"></i> Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for soil in soil_records %}
-                        <tr>
-                            <td>
-                                <strong>{{ soil.location }}</strong>
-                            </td>
-                            <td>
-                                <span class="badge" style="background-color: #3498db;">{{ soil.nitrogen }}</span>
-                            </td>
-                            <td>
-                                <span class="badge" style="background-color: #9b59b6;">{{ soil.phosphorus }}</span>
-                            </td>
-                            <td>
-                                <span class="badge" style="background-color: #f39c12;">{{ soil.potassium }}</span>
-                            </td>
-                            <td>
-                                <span class="badge" style="background-color: #e74c3c;">{{ soil.ph }}</span>
-                            </td>
-                            <td>
-                                {% if soil.weather_error %}
-                                    <span class="text-danger">{{ soil.weather_error }}</span>
-                                {% elif soil.weather_main %}
-                                    <strong>{{ soil.weather_city|default:soil.location }}</strong><br>
-                                    <small class="text-muted">{{ soil.weather_main }} - {{ soil.weather_description|title }}</small>
-                                {% else %}
-                                    <span class="text-muted">Not saved</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if soil.weather_temperature is not None %}
-                                    {{ soil.weather_temperature|floatformat:1 }}&deg;C
-                                    <br><small class="text-muted">Feels {{ soil.weather_feels_like|floatformat:1 }}&deg;C</small>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if soil.weather_humidity is not None %}
-                                    {{ soil.weather_humidity }}%
-                                    <br><small class="text-muted">Wind {{ soil.weather_wind_speed|floatformat:1 }} m/s</small>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ soil.created_at|date:"M d, Y H:i" }}</td>
-                            <td style="white-space: nowrap;">
-                                <a href="{% url 'predict_crop' soil.pk %}" class="btn btn-sm btn-predict" title="Predict best crop">
-                                    <i class="fas fa-seedling"></i> Predict
-                                </a>
-                                <a href="{% url 'edit_soil' soil.pk %}" class="btn btn-sm btn-primary" title="Edit">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <a href="{% url 'delete_soil' soil.pk %}" class="btn btn-sm btn-danger" title="Delete">
-                                    <i class="fas fa-trash"></i> Delete
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);font-size:var(--text-sm);">
+              <div><span class="text-muted-modern">N:</span> <strong>{{ soil.nitrogen }}</strong></div>
+              <div><span class="text-muted-modern">P:</span> <strong>{{ soil.phosphorus }}</strong></div>
+              <div><span class="text-muted-modern">K:</span> <strong>{{ soil.potassium }}</strong></div>
+              <div><span class="text-muted-modern">pH:</span> <strong>{{ soil.ph }}</strong></div>
             </div>
+            {% if soil.weather_main %}
+              <div style="margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--gray-100);font-size:var(--text-sm);">
+                <span class="text-muted-modern">{{ soil.weather_city|default:soil.location }}:</span>
+                {{ soil.weather_temperature|floatformat:1 }}&deg;C, {{ soil.weather_humidity }}% humidity
+              </div>
+            {% endif %}
+          </div>
         </div>
+      {% endfor %}
+    </div>
 
-        <!-- Card View for Mobile -->
-        <div style="display: none;" class="d-md-none">
-            <div class="row">
-                {% for soil in soil_records %}
-                <div class="col-12 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h6 class="card-title" style="color: #2ecc71; font-weight: 700;">
-                                <i class="fas fa-map-marker-alt"></i> {{ soil.location }}
-                            </h6>
-                            <div class="row mt-3">
-                                <div class="col-6">
-                                    <small class="text-muted">Nitrogen</small>
-                                    <p style="font-weight: 600;">{{ soil.nitrogen }}</p>
-                                </div>
-                                <div class="col-6">
-                                    <small class="text-muted">Phosphorus</small>
-                                    <p style="font-weight: 600;">{{ soil.phosphorus }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <small class="text-muted">Potassium</small>
-                                    <p style="font-weight: 600;">{{ soil.potassium }}</p>
-                                </div>
-                                <div class="col-6">
-                                    <small class="text-muted">pH</small>
-                                    <p style="font-weight: 600;">{{ soil.ph }}</p>
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <small class="text-muted">Weather</small>
-                                {% if soil.weather_error %}
-                                    <p class="text-danger" style="font-weight: 600;">{{ soil.weather_error }}</p>
-                                {% elif soil.weather_main %}
-                                    <p style="font-weight: 600; margin-bottom: 4px;">
-                                        {{ soil.weather_temperature|floatformat:1 }}&deg;C, {{ soil.weather_description|title }}
-                                    </p>
-                                    <small class="text-muted">
-                                        Humidity {{ soil.weather_humidity }}% | Wind {{ soil.weather_wind_speed|floatformat:1 }} m/s
-                                    </small>
-                                {% else %}
-                                    <p class="text-muted" style="font-weight: 600;">Not saved</p>
-                                {% endif %}
-                            </div>
-                            <small class="text-muted">{{ soil.created_at|date:"M d, Y" }}</small>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-    {% else %}
-        <div class="card border-0" style="text-align: center; padding: 60px 20px;">
-            <div style="font-size: 4rem; color: #ddd; margin-bottom: 20px;">
-                <i class="fas fa-inbox"></i>
-            </div>
-            <h4 style="color: #666; margin-bottom: 10px;">No soil records yet</h4>
-            <p style="color: #999; margin-bottom: 30px;">Start by adding your first soil data to get crop recommendations.</p>
-            <a href="{% url 'add_soil' %}" class="btn btn-success btn-lg">
-                <i class="fas fa-plus"></i> Add Soil Data
-            </a>
-        </div>
+    <!-- Pagination -->
+    {% if soil_records.has_other_pages %}
+      <nav style="margin-top:var(--space-6);display:flex;justify-content:center;gap:var(--space-2);">
+        {% if soil_records.has_previous %}
+          <a href="?page={{ soil_records.previous_page_number }}" class="btn-modern btn-outline-modern btn-sm-modern">&laquo; Previous</a>
+        {% endif %}
+        <span class="btn-modern btn-ghost btn-sm-modern" style="cursor:default;">Page {{ soil_records.number }} of {{ soil_records.paginator.num_pages }}</span>
+        {% if soil_records.has_next %}
+          <a href="?page={{ soil_records.next_page_number }}" class="btn-modern btn-outline-modern btn-sm-modern">Next &raquo;</a>
+        {% endif %}
+      </nav>
     {% endif %}
 
-    <!-- Add New Record Button (Floating) -->
-    <div style="position: fixed; bottom: 30px; right: 30px;">
-        <a href="{% url 'add_soil' %}" class="btn btn-success btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);">
-            <i class="fas fa-plus"></i>
-        </a>
-    </div>
-</div>
+  {% else %}
 
+    <!-- Empty State -->
+    <div class="card-modern">
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <i class="fas fa-seedling"></i>
+        </div>
+        <h4>No soil records yet</h4>
+        <p>Start by adding your first soil data to get AI-powered crop recommendations.</p>
+        <a href="{% url 'add_soil' %}" class="btn-modern btn-primary-modern btn-lg-modern">
+          <i class="fas fa-plus"></i> Add Your First Soil Data
+        </a>
+      </div>
+    </div>
+
+  {% endif %}
+
+  <!-- Floating Action Button -->
+  <a href="{% url 'add_soil' %}" class="btn-modern btn-primary-modern" style="position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;font-size:1.25rem;box-shadow:var(--shadow-lg);z-index:100;padding:0;"
+     title="Add soil data">
+    <i class="fas fa-plus"></i>
+  </a>
+
+</div>
 {% endblock %}

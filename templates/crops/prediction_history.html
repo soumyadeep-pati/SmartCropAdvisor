@@ -1,622 +1,209 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Prediction History - Smart Crop Advisor{% endblock %}
 
-{% block extra_css %}
-<style>
-    .history-page {
-        padding: 48px 0;
-    }
-
-    .history-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-        margin-bottom: 28px;
-    }
-
-    .history-title {
-        color: var(--dark-color);
-        font-size: 2rem;
-        font-weight: 800;
-        margin-bottom: 8px;
-    }
-
-    .history-subtitle {
-        color: #6c757d;
-        margin: 0;
-    }
-
-    .history-actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .history-stat {
-        background: white;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
-        padding: 22px 24px;
-        margin-bottom: 24px;
-        border-left: 5px solid var(--primary-color);
-    }
-
-    .history-stat-value {
-        color: var(--secondary-color);
-        font-size: 2rem;
-        font-weight: 800;
-        line-height: 1;
-        margin-bottom: 6px;
-    }
-
-    .history-stat-label {
-        color: #6c757d;
-        font-weight: 600;
-        margin: 0;
-    }
-
-    .history-crop {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 800;
-        color: var(--dark-color);
-        text-transform: capitalize;
-    }
-
-    .history-crop-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(46, 204, 113, 0.12);
-        color: var(--secondary-color);
-        flex: 0 0 36px;
-    }
-
-    .confidence-wrap {
-        min-width: 180px;
-    }
-
-    .confidence-label {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 8px;
-        color: #5f6f7a;
-        font-size: 0.9rem;
-        font-weight: 700;
-    }
-
-    .confidence-track {
-        width: 100%;
-        height: 9px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: #e9f7ef;
-    }
-
-    .confidence-fill {
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(135deg, #16a085 0%, #2ecc71 100%);
-    }
-
-    .history-meta {
-        color: #6c757d;
-        font-size: 0.94rem;
-    }
-
-    .history-empty {
-        text-align: center;
-        background: white;
-        border-radius: 15px;
-        box-shadow: var(--shadow);
-        padding: 64px 24px;
-    }
-
-    .history-empty-icon {
-        color: #d7dee2;
-        font-size: 4rem;
-        margin-bottom: 18px;
-    }
-
-    .history-card-list {
-        display: none;
-    }
-
-    .history-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
-        padding: 20px;
-        margin-bottom: 16px;
-    }
-
-    /* ========== CHART CARD STYLES ========== */
-    .chart-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
-        padding: 28px;
-        margin-bottom: 28px;
-        border-top: 4px solid var(--secondary-color);
-    }
-
-    .chart-card-title {
-        color: var(--dark-color);
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .chart-card-icon {
-        color: var(--secondary-color);
-        font-size: 1.5rem;
-    }
-
-    /* Chart container with responsive sizing */
-    .chart-container {
-        position: relative;
-        height: 400px;
-        width: 100%;
-        margin-bottom: 16px;
-    }
-
-    /* Empty state for chart when no data */
-    .chart-empty {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 400px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        color: #6c757d;
-        font-style: italic;
-    }
-
-    @media (max-width: 768px) {
-        .history-page {
-            padding: 32px 0;
-        }
-
-        .history-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .history-title {
-            font-size: 1.6rem;
-        }
-
-        .history-actions,
-        .history-actions .btn {
-            width: 100%;
-        }
-
-        .history-table {
-            display: none;
-        }
-
-        .history-card-list {
-            display: block;
-        }
-
-        /* Responsive chart sizing for mobile */
-        .chart-container {
-            height: 300px;
-        }
-
-        .chart-card {
-            padding: 20px;
-        }
-
-        .chart-card-title {
-            font-size: 1.1rem;
-        }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container history-page">
-    <div class="history-header">
-        <div>
-            <h2 class="history-title">
-                <i class="fas fa-clock-rotate-left"></i> Prediction History
-            </h2>
-            <p class="history-subtitle">Review your saved crop recommendations and confidence scores.</p>
-        </div>
+<div class="container-narrow section">
+  <div class="dashboard-header">
+    <div>
+      <h1><i class="fas fa-history text-green"></i> Prediction History</h1>
+      <p>Review saved crop recommendations and confidence scores</p>
+    </div>
+    <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+      <a href="{% url 'dashboard' %}" class="btn-modern btn-outline-modern"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="{% url 'add_soil' %}" class="btn-modern btn-primary-modern"><i class="fas fa-plus"></i> Add Soil</a>
+    </div>
+  </div>
 
-        <div class="history-actions">
-            <a href="{% url 'dashboard' %}" class="btn btn-primary">
-                <i class="fas fa-chart-line"></i> Dashboard
-            </a>
-            <a href="{% url 'add_soil' %}" class="btn btn-success">
-                <i class="fas fa-plus"></i> Add Soil Data
-            </a>
+  {% if prediction_rows %}
+
+    <!-- Stats -->
+    <div class="stat-grid animate-stagger">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#dcfce7;color:var(--green-600);"><i class="fas fa-database"></i></div>
+        <div class="stat-card-body">
+          <div class="stat-card-value">{{ total_predictions }}</div>
+          <p class="stat-card-label">Total Predictions</p>
         </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-gauge-high"></i></div>
+        <div class="stat-card-body">
+          <div class="stat-card-value">{% if avg_confidence is not None %}{{ avg_confidence|floatformat:2 }}{% else %}0{% endif %}</div>
+          <p class="stat-card-label">Average Confidence</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#fce7f3;color:#db2777;"><i class="fas fa-leaf"></i></div>
+        <div class="stat-card-body">
+          <div class="stat-card-value" style="font-size:1.1rem;">{% if top_crop %}{{ top_crop.crop_name }}{% else %}N/A{% endif %}</div>
+          <p class="stat-card-label">Most Recommended Crop</p>
+        </div>
+      </div>
     </div>
 
-    {% if prediction_rows %}
-        <!-- ========== ANALYTICS CARDS SECTION ========== -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card text-center shadow-sm">
-                    <div class="card-body">
-                        <h2>{{ total_predictions }}</h2>
-                        <p>Total Predictions</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card text-center shadow-sm">
-                    <div class="card-body">
-                        <h2>
-                            {% if avg_confidence %}
-                                {{ avg_confidence|floatformat:2 }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </h2>
-                        <p>Average Confidence</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card text-center shadow-sm">
-                    <div class="card-body">
-                        <h2>
-                            {% if top_crop %}
-                                {{ top_crop.crop_name }}
-                            {% else %}
-                                None
-                            {% endif %}
-                        </h2>
-                        <p>Most Recommended Crop</p>
-                    </div>
-                </div>
-            </div>
+    <!-- Chart -->
+    {% if chart_data.labels|length > 0 %}
+      <div class="card-modern" style="margin-bottom:var(--space-5);">
+        <div class="card-header">
+          <i class="fas fa-chart-bar text-green"></i> Crop Recommendation Distribution
         </div>
-
-        <!-- ========== CROP RECOMMENDATION DISTRIBUTION CHART ========== -->
-        {% if chart_data.labels|length > 0 %}
-            <div class="chart-card">
-                <h3 class="chart-card-title">
-                    <i class="fas fa-chart-bar chart-card-icon"></i>
-                    Crop Recommendation Distribution
-                </h3>
-                <p style="color: #6c757d; margin-bottom: 20px; font-size: 0.95rem;">
-                    Analysis of all crop recommendations by frequency
-                </p>
-
-                <!-- Container for Chart.js canvas element -->
-                <div class="chart-container">
-                    <canvas id="cropDistributionChart"></canvas>
-                </div>
-
-                <!-- Hidden data container: Uses Django json_script filter for secure data passing -->
-                <!-- json_script automatically escapes and encodes the data for safe JavaScript consumption -->
-                {{ chart_data|json_script:"chartData" }}
-            </div>
-        {% endif %}
-
-        <!-- ========== PREDICTION HISTORY TABLE (Desktop View) ========== -->
-        <div class="table-container history-table">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-seedling"></i> Crop</th>
-                            <th><i class="fas fa-location-dot"></i> Location</th>
-                            <th><i class="fas fa-gauge-high"></i> Confidence</th>
-                            <th><i class="fas fa-flask"></i> Soil pH</th>
-                            <th><i class="fas fa-calendar-alt"></i> Date</th>
-                            <th><i class="fas fa-file-pdf"></i> Report</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in prediction_rows %}
-                            <tr>
-                                <td>
-                                    <div class="history-crop">
-                                        <span class="history-crop-icon">
-                                            <i class="fas fa-leaf"></i>
-                                        </span>
-                                        {{ row.prediction.crop_name }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <strong>{{ row.prediction.soil_data.location }}</strong>
-                                </td>
-                                <td>
-                                    <div class="confidence-wrap">
-                                        <div class="confidence-label">
-                                            <span>Model confidence</span>
-                                            <span>
-                                                {% if row.confidence_percent is not None %}
-                                                    {{ row.confidence_percent }}%
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
-                                            </span>
-                                        </div>
-                                        <div class="confidence-track">
-                                            <div class="confidence-fill" style="width: {{ row.confidence_percent|default:0 }}%;"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>{{ row.prediction.soil_data.ph|floatformat:1 }}</td>
-                                <td class="history-meta">{{ row.prediction.created_at|date:"M d, Y H:i" }}</td>
-                                <td>
-                                <a
-                                    href="{% url 'download_prediction_report' row.prediction.id %}"
-                                    class="btn btn-danger btn-sm"
-                                >
-                                    <i class="fas fa-file-pdf"></i> PDF
-                                </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="card-body" style="padding:var(--space-5);">
+          <div style="position:relative;height:360px;">
+            <canvas id="cropDistributionChart"></canvas>
+          </div>
         </div>
-
-        <!-- ========== PREDICTION HISTORY CARDS (Mobile View) ========== -->
-        <div class="history-card-list">
-            {% for row in prediction_rows %}
-                <div class="history-card">
-                    <div class="history-crop mb-3">
-                        <span class="history-crop-icon">
-                            <i class="fas fa-leaf"></i>
-                        </span>
-                        {{ row.prediction.crop_name }}
-                    </div>
-
-                    <div class="history-meta mb-3">
-                        <div><i class="fas fa-location-dot"></i> {{ row.prediction.soil_data.location }}</div>
-                        <div><i class="fas fa-calendar-alt"></i> {{ row.prediction.created_at|date:"M d, Y H:i" }}</div>
-                        <div><i class="fas fa-flask"></i> pH {{ row.prediction.soil_data.ph|floatformat:1 }}</div>
-                    </div>
-
-                    <div class="confidence-wrap">
-                        <div class="confidence-label">
-                            <span>Model confidence</span>
-                            <span>
-                                {% if row.confidence_percent is not None %}
-                                    {{ row.confidence_percent }}%
-                                {% else %}
-                                    N/A
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="confidence-track">
-                            <div class="confidence-fill" style="width: {{ row.confidence_percent|default:0 }}%;"></div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <!-- ========== EMPTY STATE WHEN NO PREDICTIONS ========== -->
-        <div class="history-empty">
-            <div class="history-empty-icon">
-                <i class="fas fa-seedling"></i>
-            </div>
-            <h4 style="color: #666; margin-bottom: 10px;">No predictions yet</h4>
-            <p style="color: #999; margin-bottom: 30px;">Run a crop prediction from your dashboard to start building history.</p>
-            <a href="{% url 'dashboard' %}" class="btn btn-predict">
-                <i class="fas fa-chart-line"></i> Go to Dashboard
-            </a>
-        </div>
+        {{ chart_data|json_script:"chartData" }}
+      </div>
     {% endif %}
+
+    <!-- Desktop Table -->
+    <div class="card-modern d-none d-md-block">
+      <div class="card-header"><i class="fas fa-list text-green"></i> Predictions</div>
+      <div style="overflow-x:auto;">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th>Crop</th>
+              <th>Location</th>
+              <th>Confidence</th>
+              <th>Soil pH</th>
+              <th>Date</th>
+              <th>Report</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in prediction_rows %}
+              <tr>
+                <td data-label="Crop"><strong>{{ row.prediction.crop_name }}</strong></td>
+                <td data-label="Location">{{ row.prediction.soil_data.location }}</td>
+                <td data-label="Confidence">
+                  <div style="min-width:140px;">
+                    <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);margin-bottom:4px;color:var(--gray-500);">
+                      <span>Confidence</span>
+                      <span>{% if row.confidence_percent is not None %}{{ row.confidence_percent }}%{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div style="height:8px;border-radius:999px;background:var(--gray-100);overflow:hidden;">
+                      <div style="height:100%;border-radius:inherit;background:linear-gradient(90deg,#16a34a,#22c55e);width:{{ row.confidence_percent|default:0 }}%;"></div>
+                    </div>
+                  </div>
+                </td>
+                <td data-label="pH">{{ row.prediction.soil_data.ph|floatformat:1 }}</td>
+                <td data-label="Date" style="white-space:nowrap;">{{ row.prediction.created_at|date:"M d, Y H:i" }}</td>
+                <td data-label="Report">
+                  <a href="{% url 'download_prediction_report' row.prediction.id %}" class="btn-modern btn-danger-modern btn-sm-modern">
+                    <i class="fas fa-file-pdf"></i> PDF
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="d-md-none" style="display:grid;gap:var(--space-3);">
+      {% for row in prediction_rows %}
+        <div class="card-modern">
+          <div class="card-body" style="padding:var(--space-4);">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:var(--space-3);">
+              <div>
+                <strong style="font-size:var(--text-base);">{{ row.prediction.crop_name }}</strong>
+                <div style="font-size:var(--text-xs);color:var(--gray-500);">{{ row.prediction.soil_data.location }} &middot; {{ row.prediction.created_at|date:"M d, Y" }}</div>
+              </div>
+              <a href="{% url 'download_prediction_report' row.prediction.id %}" class="btn-modern btn-danger-modern btn-sm-modern"><i class="fas fa-file-pdf"></i></a>
+            </div>
+            <div style="font-size:var(--text-sm);">
+              <span class="text-muted-modern">pH:</span> {{ row.prediction.soil_data.ph|floatformat:1 }}
+            </div>
+            <div style="margin-top:var(--space-2);">
+              <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);margin-bottom:4px;color:var(--gray-500);">
+                <span>Confidence</span>
+                <span>{% if row.confidence_percent is not None %}{{ row.confidence_percent }}%{% else %}N/A{% endif %}</span>
+              </div>
+              <div style="height:6px;border-radius:999px;background:var(--gray-100);overflow:hidden;">
+                <div style="height:100%;border-radius:inherit;background:linear-gradient(90deg,#16a34a,#22c55e);width:{{ row.confidence_percent|default:0 }}%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+
+    <div class="card-modern">
+      <div class="empty-state">
+        <div class="empty-state-icon"><i class="fas fa-history"></i></div>
+        <h4>No predictions yet</h4>
+        <p>Run a crop prediction from your dashboard to start building history.</p>
+        <a href="{% url 'dashboard' %}" class="btn-modern btn-primary-modern"><i class="fas fa-chart-line"></i> Go to Dashboard</a>
+      </div>
+    </div>
+
+  {% endif %}
 </div>
 
-<!-- ========== CHART.JS CDN ========== -->
-<!-- Loading Chart.js library from CDN for creating responsive, interactive charts -->
-<!-- Version 3.9.1 is stable and widely supported -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-
-<!-- ========== CHART INITIALIZATION JAVASCRIPT ========== -->
 <script>
-    /**
-     * Initialize Crop Distribution Chart
-     * 
-     * This script:
-     * 1. Waits for DOM to load
-     * 2. Retrieves chart data from the hidden json_script container
-     * 3. Configures Chart.js with professional styling
-     * 4. Renders the bar chart
-     * 5. Provides responsive behavior
-     */
+document.addEventListener('DOMContentLoaded', function() {
+  const el = document.getElementById('chartData');
+  if (!el) return;
+  const chartData = JSON.parse(el.textContent);
+  const ctx = document.getElementById('cropDistributionChart');
+  if (!ctx) return;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // ========== RETRIEVE CHART DATA FROM TEMPLATE ==========
-        // The json_script filter encodes and securely passes Django data to JavaScript
-        // getElementById retrieves the JSON encoded data from the hidden script tag
-        const chartDataElement = document.getElementById('chartData');
+  const colors = ['#2ecc71','#3498db','#e74c3c','#f39c12','#9b59b6','#1abc9c','#34495e','#e67e22','#27ae60','#2980b9'];
+  const bgColors = chartData.labels.map((_, i) => colors[i % colors.length]);
 
-        // If no chart data exists (e.g., no predictions), skip initialization
-        if (!chartDataElement) {
-            console.log('No chart data available');
-            return;
-        }
-
-        // Parse the JSON data from the element's text content
-        const chartData = JSON.parse(chartDataElement.textContent);
-
-        // ========== GET CANVAS ELEMENT ==========
-        // Canvas is the HTML5 element where Chart.js renders the chart
-        const ctx = document.getElementById('cropDistributionChart');
-
-        // If canvas doesn't exist, exit gracefully
-        if (!ctx) {
-            console.error('Chart canvas not found');
-            return;
-        }
-
-        // ========== DEFINE CHART COLORS ==========
-        // Array of professional colors for chart bars
-        // Each crop gets a distinct color for visual differentiation
-        const colors = [
-            '#2ecc71', // Green
-            '#3498db', // Blue
-            '#e74c3c', // Red
-            '#f39c12', // Orange
-            '#9b59b6', // Purple
-            '#1abc9c', // Turquoise
-            '#34495e', // Dark Blue-Gray
-            '#e67e22', // Dark Orange
-            '#27ae60', // Dark Green
-            '#2980b9', // Darker Blue
-        ];
-
-        // ========== GENERATE BACKGROUND COLORS ==========
-        // Map colors to each crop, cycling through if more crops than colors
-        const backgroundColors = chartData.labels.map((_, index) => 
-            colors[index % colors.length]
-        );
-
-        // ========== GENERATE BORDER COLORS (darker shade) ==========
-        // Border colors are slightly darker for contrast
-        const borderColors = backgroundColors.map(color => {
-            // Make color slightly darker by manipulating hex
-            const darker = color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
-                (m, r, g, b) => '#' + 
-                parseInt(r, 16).toString(16) + 
-                parseInt(g, 16).toString(16) + 
-                parseInt(b, 16).toString(16)
-            );
-            return darker;
-        });
-
-        // ========== INITIALIZE CHART.JS INSTANCE ==========
-        // Create new Chart instance with configured options
-        const chart = new Chart(ctx, {
-            type: 'bar', // Bar chart type
-
-            data: {
-                // X-axis labels: crop names
-                labels: chartData.labels,
-                
-                datasets: [{
-                    // Chart data: recommendation counts
-                    data: chartData.data,
-                    
-                    // Visual styling
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors,
-                    borderWidth: 2, // Add border around bars
-                    borderRadius: 6, // Rounded corners on bars
-                    borderSkipped: false, // Apply border to all sides
-                    
-                    // Add padding between bars
-                    barPercentage: 0.7,
-                    categoryPercentage: 0.8,
-                }],
-            },
-
-            options: {
-                responsive: true, // Chart resizes with container
-                maintainAspectRatio: false, // Allow custom height
-                
-                // ========== PLUGINS CONFIGURATION ==========
-                plugins: {
-                    legend: {
-                        display: false, // Hide legend for single dataset
-                    },
-                    
-                    tooltip: {
-                        // Customize tooltip appearance
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        cornerRadius: 6,
-                        titleFont: {
-                            size: 14,
-                            weight: 'bold',
-                        },
-                        bodyFont: {
-                            size: 13,
-                        },
-                        displayColors: false, // Don't show color square
-                        
-                        // Custom tooltip content
-                        callbacks: {
-                            label: function(context) {
-                                return 'Recommendations: ' + context.parsed.y;
-                            }
-                        }
-                    },
-                },
-
-                // ========== SCALES CONFIGURATION ==========
-                scales: {
-                    y: {
-                        beginAtZero: true, // Start Y-axis at 0
-                        ticks: {
-                            stepSize: 1, // Show integer values only
-                            font: {
-                                size: 12,
-                            },
-                        },
-                        title: {
-                            display: true,
-                            text: 'Number of Recommendations',
-                            font: {
-                                size: 13,
-                                weight: 'bold',
-                            },
-                        },
-                        grid: {
-                            drawBorder: false, // Remove left border
-                            color: 'rgba(200, 200, 200, 0.1)', // Light grid lines
-                        },
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Crop Name',
-                            font: {
-                                size: 13,
-                                weight: 'bold',
-                            },
-                        },
-                        ticks: {
-                            font: {
-                                size: 12,
-                            },
-                        },
-                        grid: {
-                            display: false, // No vertical grid lines
-                        },
-                    },
-                },
-
-                // ========== ANIMATION CONFIGURATION ==========
-                animation: {
-                    duration: 750, // Smooth animation on load (ms)
-                    easing: 'easeInOutQuart',
-                },
-            },
-        });
-
-        // ========== DEBUG LOG ==========
-        // Log successful chart initialization to browser console
-        console.log('Crop Distribution Chart initialized successfully', {
-            crops: chartData.labels.length,
-            totalRecommendations: chartData.data.reduce((a, b) => a + b, 0),
-        });
-    });
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [{
+        data: chartData.data,
+        backgroundColor: bgColors,
+        borderColor: bgColors,
+        borderWidth: 2,
+        borderRadius: 6,
+        borderSkipped: false,
+        barPercentage: 0.7,
+        categoryPercentage: 0.8,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          padding: 12,
+          cornerRadius: 6,
+          displayColors: false,
+          callbacks: {
+            label: function(ctx) { return 'Recommendations: ' + ctx.parsed.y; }
+          }
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, font: { size: 12 } },
+          title: { display: true, text: 'Recommendations', font: { size: 13, weight: 'bold' } },
+          grid: { drawBorder: false, color: 'rgba(200,200,200,0.1)' },
+        },
+        x: {
+          title: { display: true, text: 'Crop', font: { size: 13, weight: 'bold' } },
+          ticks: { font: { size: 12 } },
+          grid: { display: false },
+        },
+      },
+      animation: { duration: 750, easing: 'easeInOutQuart' },
+    },
+  });
+});
 </script>
 {% endblock %}

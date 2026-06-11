@@ -2,13 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import SoilDataForm
 from .models import SoilData, CropPrediction
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from weather.services import get_weather
 from ml.prediction import predict_crop
 from django.db.models import Avg, Count
-import json
 from django.http import HttpResponse
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
+
 def attach_weather_to_soil(soil):
     weather_data = get_weather(soil.location)
 
@@ -73,12 +72,16 @@ def edit_soil_data(request, pk):
 
 @login_required
 def dashboard(request):
-    soil_records = SoilData.objects.filter(user=request.user).order_by('-created_at')
+    soil_records_list = SoilData.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(soil_records_list, 10)
+    page_number = request.GET.get('page')
+    soil_records = paginator.get_page(page_number)
+    latest_soil = soil_records_list.first()
 
     return render(
         request,
         'crops/dashboard.html',
-        {'soil_records': soil_records}
+        {'soil_records': soil_records, 'latest_soil': latest_soil}
     )
 
 @login_required
@@ -126,18 +129,24 @@ def predict_crop_view(request, pk):
     temperature = weather["temperature"]
     humidity = weather["humidity"]
 
-    # Temporary rainfall value
-    rainfall = 150
-
-    crop, confidence = predict_crop(
-        soil.nitrogen,
-        soil.phosphorus,
-        soil.potassium,
-        temperature,
-        humidity,
-        soil.ph,
-        rainfall
-    )
+    try:
+        crop, confidence = predict_crop(
+            soil.nitrogen,
+            soil.phosphorus,
+            soil.potassium,
+            temperature,
+            humidity,
+            soil.ph,
+            soil.rainfall
+        )
+    except Exception:
+        return render(
+            request,
+            "crops/prediction.html",
+            {
+                "error": "The AI model is currently unavailable. Please try again later."
+            }
+        )
 
     # Save prediction
     CropPrediction.objects.create(
@@ -159,10 +168,9 @@ def predict_crop_view(request, pk):
             "humidity": humidity,
         }
     )
+
 @login_required
 def prediction_history(request):
-    # ========== FETCH ALL PREDICTIONS FOR THE CURRENT USER ==========
-    # Using select_related() to optimize database queries by fetching related soil_data
     predictions = (
         CropPrediction.objects
         .filter(user=request.user)
@@ -170,18 +178,12 @@ def prediction_history(request):
         .order_by('-created_at')
     )
 
-    # ========== CALCULATE TOTAL PREDICTIONS ==========
-    # Count total number of predictions
     total_predictions = predictions.count()
 
-    # ========== CALCULATE AVERAGE CONFIDENCE ==========
-    # Aggregate average confidence score across all predictions
     avg_confidence = predictions.aggregate(
         Avg('confidence')
     )['confidence__avg']
 
-    # ========== FIND TOP RECOMMENDED CROP ==========
-    # Get the most frequently recommended crop
     top_crop = (
         predictions
         .values('crop_name')
@@ -190,9 +192,6 @@ def prediction_history(request):
         .first()
     )
 
-    # ========== BUILD CROP DISTRIBUTION DATA FOR CHART ==========
-    # Query all unique crops with their recommendation counts
-    # This data will be passed to Chart.js for visualization
     crop_distribution = list(
         predictions
         .values('crop_name')
@@ -200,25 +199,21 @@ def prediction_history(request):
         .order_by('-total')
     )
 
-    # ========== PREPARE CHART DATA STRUCTURE ==========
-    # Format the crop distribution data for Chart.js
-    # Extract crop names and their counts separately for the chart
     chart_labels = [crop['crop_name'] for crop in crop_distribution]
     chart_data = [crop['total'] for crop in crop_distribution]
 
-    # ========== CREATE CHART DATA CONTEXT ==========
-    # Convert to JSON for safe passage to frontend via json_script filter
-    # This prevents XSS vulnerabilities and ensures proper data encoding
     chart_context = {
         'labels': chart_labels,
         'data': chart_data,
     }
 
-    # ========== PROCESS PREDICTION ROWS FOR TABLE DISPLAY ==========
-    # Format each prediction with confidence percentage for the table
+    paginator = Paginator(predictions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     prediction_rows = []
 
-    for prediction in predictions:
+    for prediction in page_obj:
         confidence_percent = None
 
         if prediction.confidence is not None:
@@ -231,13 +226,12 @@ def prediction_history(request):
             'confidence_percent': confidence_percent,
         })
 
-    # ========== RENDER TEMPLATE WITH ALL CONTEXT DATA ==========
-    # Pass all aggregated data to the template for rendering
     return render(
         request,
         'crops/prediction_history.html',
         {
             'prediction_rows': prediction_rows,
+            'page_obj': page_obj,
             'total_predictions': total_predictions,
             'avg_confidence': avg_confidence,
             'top_crop': top_crop,
@@ -265,6 +259,9 @@ def download_prediction_report(request, prediction_id):
         f'attachment; '
         f'filename="prediction_{prediction.id}.pdf"'
     )
+
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet
 
     doc = SimpleDocTemplate(response)
 
@@ -325,11 +322,13 @@ def download_prediction_report(request, prediction_id):
         )
     )
 
+    confidence_text = (
+        f"Confidence: {prediction.confidence:.2f}"
+        if prediction.confidence is not None
+        else "Confidence: N/A"
+    )
     content.append(
-        Paragraph(
-            f"Confidence: {prediction.confidence:.2f}",
-            styles['Normal']
-        )
+        Paragraph(confidence_text, styles['Normal'])
     )
 
     doc.build(content)

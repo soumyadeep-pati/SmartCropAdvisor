@@ -1,9 +1,9 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 
 class SoilData(models.Model):
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=True,
         blank=True
@@ -23,7 +23,7 @@ class SoilData(models.Model):
     weather_description = models.CharField(max_length=255, blank=True)
     weather_wind_speed = models.FloatField(null=True, blank=True)
     weather_error = models.CharField(max_length=255, blank=True)
-    rainfall = models.FloatField(default=200, help_text="Rainfall in mm")
+    rainfall = models.FloatField(default=200, blank=True, help_text="Rainfall in mm")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -34,7 +34,7 @@ class SoilData(models.Model):
 class CropPrediction(models.Model):
 
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
 

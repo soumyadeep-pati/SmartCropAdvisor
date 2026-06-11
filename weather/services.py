@@ -9,15 +9,14 @@ def get_weather(city):
             "message": "Weather API key is missing. Add WEATHER_API_KEY to your .env file."
         }
 
-    url = (
-        "https://api.openweathermap.org/data/2.5/weather"
-        f"?q={city}"
-        f"&appid={settings.WEATHER_API_KEY}"
-        "&units=metric"
-    )
+    url = "https://api.openweathermap.org/data/2.5/weather"
 
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(
+            url,
+            params={"q": city, "appid": settings.WEATHER_API_KEY, "units": "metric"},
+            timeout=10
+        )
         data = response.json()
     except requests.RequestException:
         return {

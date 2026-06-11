@@ -6,8 +6,8 @@ from .services import get_weather
 
 
 def weather_view(request):
+    has_search = "city" in request.GET and request.GET.get("city", "").strip()
     city = request.GET.get("city", "Kolkata").strip()
-    has_search = "city" in request.GET
 
     if not city:
         city = "Kolkata"

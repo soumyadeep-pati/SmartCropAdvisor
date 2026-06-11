@@ -1,65 +1,139 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Login - Smart Crop Advisor{% endblock %}
+{% block title %}Log In - Smart Crop Advisor{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-page {
+    min-height: calc(100vh - var(--navbar-height));
+    display: flex;
+    align-items: stretch;
+    background: var(--bg-primary);
+  }
+  .auth-sidebar {
+    display: none;
+    flex: 1;
+    background: linear-gradient(135deg, #14532d 0%, #16a34a 50%, #22c55e 100%);
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+  .auth-sidebar-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+    max-width: 420px;
+  }
+  .auth-sidebar-content .brand-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+  }
+  .auth-sidebar-content h2 {
+    font-weight: 800;
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+    color: #fff;
+  }
+  .auth-sidebar-content p {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    line-height: 1.7;
+  }
+  .auth-form-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+    background: var(--bg-primary);
+  }
+  @media (min-width: 992px) {
+    .auth-sidebar { display: flex; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 75vh;">
-    <div class="card shadow-lg" style="width: 100%; max-width: 450px; border: none; border-radius: 15px; overflow: hidden;">
-        <div style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 40px 20px; text-align: center; color: white;">
-            <i class="fas fa-sign-in-alt" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
-            <h2 style="margin: 0; font-weight: 700;">Welcome Back</h2>
-            <p style="margin: 10px 0 0 0; opacity: 0.95;">Login to your account</p>
-        </div>
-
-        <div class="card-body" style="padding: 40px;">
-            <form method="POST" novalidate>
-                {% csrf_token %}
-                
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-circle"></i>
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                {% for field in form %}
-                    <div class="mb-4">
-                        <label for="{{ field.id_for_label }}" class="form-label">
-                            <i class="fas fa-user"></i> {{ field.label }}
-                        </label>
-                        {% if field.errors %}
-                            {{ field }}
-                            <div class="invalid-feedback">
-                                {% for error in field.errors %}
-                                    <i class="fas fa-times-circle"></i> {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ field }}
-                        {% endif %}
-                    </div>
-                {% endfor %}
-
-                <div class="d-grid gap-2 mb-3">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-lock-open"></i> Login
-                    </button>
-                </div>
-            </form>
-
-            <hr style="color: #ddd;">
-
-            <p class="text-center" style="color: #666;">
-                Don't have an account? 
-                <a href="{% url 'signup' %}" class="fw-bold text-decoration-none" style="color: #2ecc71;">
-                    Create one now
-                </a>
-            </p>
-        </div>
+<div class="auth-page">
+  <!-- Hero Sidebar -->
+  <div class="auth-sidebar">
+    <div class="auth-sidebar-content">
+      <div class="brand-icon"><i class="fas fa-leaf"></i></div>
+      <h2>Welcome Back</h2>
+      <p>Access your soil data, view AI-powered crop recommendations, and track weather insights — all in one place.</p>
     </div>
-</div>
+  </div>
 
+  <!-- Form -->
+  <div class="auth-form-wrapper">
+    <div style="width:100%;max-width:420px;">
+      <div style="margin-bottom:var(--space-6);text-align:center;">
+        <h2 style="font-weight:700;">Log In</h2>
+        <p style="color:var(--gray-500);font-size:var(--text-sm);">Sign in to your Smart Crop Advisor account</p>
+      </div>
+
+      <form method="POST" class="form-modern" data-loading>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert-modern alert-danger-modern" role="alert">
+            <i class="fas fa-exclamation-circle"></i>
+            {% for err in form.non_field_errors %}{{ err }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="id_username" class="form-label"><i class="fas fa-user"></i> Username</label>
+          <input type="text" name="username" id="id_username" class="form-input-modern{% if form.username.errors %} is-invalid{% endif %}"
+                 placeholder="Enter your username" required autofocus>
+          {% for err in form.username.errors %}
+            <div class="form-error">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_password" class="form-label"><i class="fas fa-lock"></i> Password</label>
+          <div style="position:relative;">
+            <input type="password" name="password" id="id_password" class="form-input-modern{% if form.password.errors %} is-invalid{% endif %}"
+                   placeholder="Enter your password" required>
+            <button type="button" class="pw-toggle" data-toggle-pw="id_password" aria-label="Show password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          {% for err in form.password.errors %}
+            <div class="form-error">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="btn-modern btn-primary-modern btn-lg-modern" style="width:100%;">
+          <i class="fas fa-sign-in-alt"></i> Log In
+        </button>
+
+        <div class="text-center" style="margin-top:var(--space-4);">
+          <a href="{% url 'password_reset' %}" style="font-size:var(--text-sm);color:var(--primary);">Forgot your password?</a>
+        </div>
+
+        <div class="auth-divider">
+          <span>Don&rsquo;t have an account?</span>
+        </div>
+
+        <a href="{% url 'signup' %}" class="btn-modern btn-outline-modern btn-lg-modern" style="width:100%;">
+          <i class="fas fa-user-plus"></i> Create Account
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

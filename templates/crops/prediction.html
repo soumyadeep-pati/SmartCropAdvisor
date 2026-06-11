@@ -1,101 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}
-Crop Prediction
-{% endblock %}
+{% block title %}Crop Prediction - Smart Crop Advisor{% endblock %}
 
 {% block content %}
+<div class="container-narrow section" style="max-width:640px;">
+  {% if error %}
+    <div class="alert-modern alert-danger-modern" role="alert">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+  {% else %}
+    <div style="margin-bottom:var(--space-5);">
+      <h1 style="font-weight:700;"><i class="fas fa-seedling text-green"></i> Recommended Crop</h1>
+    </div>
 
-<div class="container mt-5">
-
-    {% if error %}
-
-        <div class="alert alert-danger">
-            {{ error }}
+    <div class="card-modern" style="border-top:4px solid var(--primary);">
+      <div class="card-body" style="padding:var(--space-6);">
+        <div style="text-align:center;margin-bottom:var(--space-5);">
+          <div style="font-size:3rem;color:var(--primary);margin-bottom:var(--space-3);"><i class="fas fa-leaf"></i></div>
+          <h2 style="font-weight:800;font-size:2rem;color:var(--green-600);margin-bottom:var(--space-2);">{{ crop }}</h2>
+          <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;background:rgba(22,163,74,0.1);font-weight:600;color:var(--green-600);">
+            <i class="fas fa-check-circle"></i> Confidence: {{ confidence|floatformat:2 }}%
+          </div>
         </div>
 
-    {% else %}
-
-        <div class="card shadow">
-
-            <div class="card-body">
-
-                <h2 class="text-success">
-                    🌾 Recommended Crop
-                </h2>
-
-                <hr>
-
-                <h1>
-                    {{ crop }}
-                </h1>
-
-                <p>
-                    Confidence:
-                    <strong>
-                        {{ confidence|floatformat:2 }}
-                    </strong>
-                </p>
-
-                <hr>
-
-                <h4>Soil Information</h4>
-
-                <p>
-                    Location:
-                    {{ soil.location }}
-                </p>
-
-                <p>
-                    Nitrogen:
-                    {{ soil.nitrogen }}
-                </p>
-
-                <p>
-                    Phosphorus:
-                    {{ soil.phosphorus }}
-                </p>
-
-                <p>
-                    Potassium:
-                    {{ soil.potassium }}
-                </p>
-
-                <p>
-                    pH:
-                    {{ soil.ph }}
-                </p>
-
-                <hr>
-
-                <h4>Weather Data Used</h4>
-
-                <p>
-                    Temperature:
-                    {{ temperature }}°C
-                </p>
-
-                <p>
-                    Humidity:
-                    {{ humidity }}%
-                </p>
-
-                <p>
-                    Weather:
-                    {{ weather.description }}
-                </p>
-
-                <p>
-                    Wind Speed:
-                    {{ weather.wind_speed }} m/s
-                </p>
-
-            </div>
-
+        <div style="background:var(--bg-secondary);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4);">
+          <h5 style="font-weight:600;margin-bottom:var(--space-3);"><i class="fas fa-flask text-green"></i> Soil Information</h5>
+          <div class="row g-3">
+            <div class="col-6"><span class="text-muted-modern">Location:</span> <strong>{{ soil.location }}</strong></div>
+            <div class="col-6"><span class="text-muted-modern">Nitrogen (N):</span> <strong>{{ soil.nitrogen }}</strong></div>
+            <div class="col-6"><span class="text-muted-modern">Phosphorus (P):</span> <strong>{{ soil.phosphorus }}</strong></div>
+            <div class="col-6"><span class="text-muted-modern">Potassium (K):</span> <strong>{{ soil.potassium }}</strong></div>
+            <div class="col-6"><span class="text-muted-modern">pH:</span> <strong>{{ soil.ph }}</strong></div>
+          </div>
         </div>
 
-    {% endif %}
+        <div style="background:var(--bg-secondary);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4);">
+          <h5 style="font-weight:600;margin-bottom:var(--space-3);"><i class="fas fa-cloud-sun text-green"></i> Weather Data Used</h5>
+          <div class="row g-3">
+            <div class="col-6"><span class="text-muted-modern">Temperature:</span> <strong>{{ temperature }}&deg;C</strong></div>
+            <div class="col-6"><span class="text-muted-modern">Humidity:</span> <strong>{{ humidity }}%</strong></div>
+            <div class="col-6"><span class="text-muted-modern">Weather:</span> <strong>{{ weather.description }}</strong></div>
+            <div class="col-6"><span class="text-muted-modern">Wind Speed:</span> <strong>{{ weather.wind_speed }} m/s</strong></div>
+          </div>
+        </div>
 
+        <a href="{% url 'dashboard' %}" class="btn-modern btn-primary-modern" style="width:100%;">
+          <i class="fas fa-chart-line"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  {% endif %}
 </div>
-
 {% endblock %}
